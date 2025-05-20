@@ -1,3 +1,17 @@
+## Wordli
+This is a Wordle clone with customizable options to make things interesting
+
+## Planned Features
+- Categories based on user input
+- Customizable word length
+- Time trial option
+- Disable highlighting for letters that are in word but not in correct position
+- Colorblind settings
+- Multi-player, i.e. joinable room where the first person to guess wins the round
+- Daily word challenge
+- Hints for guessing word
+- History of all rounds
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
