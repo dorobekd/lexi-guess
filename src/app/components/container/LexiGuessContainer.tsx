@@ -2,11 +2,10 @@
 import { useState } from "react";
 import OnScreenKeyboard from "../keyboard/OnScreenKeyboard";
 import Word from "../word/Word";
-import { Box, IconButton, Alert } from "@mui/material";
+import { Box, Alert } from "@mui/material";
 import { LETTER_STATUS } from "../types";
 import { LexiGuessConfig } from "../config";
 import SettingsDialog from "../SettingsDialog";
-import SettingsIcon from '@mui/icons-material/Settings';
 import GameOverModal from "../modals/GameOverModal";
 import VictoryModal from "../modals/VictoryModal";
 import LoadingPlaceholder from "./LoadingPlaceholder";
@@ -84,12 +83,6 @@ export default function LexiGuessContainer() {
           {error.message}
         </Alert>
       )}
-      <IconButton 
-        onClick={() => setSettingsOpen(true)}
-        sx={{ position: 'absolute', top: 0, right: 0 }}
-      >
-        <SettingsIcon />
-      </IconButton>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         {allWordSlots.map((_, index) => {
           const isCurrentRow = index === guesses.length;

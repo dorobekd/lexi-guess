@@ -1,0 +1,71 @@
+<!-- <svg width="160" height="160" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+      .logo-text {
+        font-family: 'Inter', sans-serif;
+        font-weight: 700; /* Bold for emphasis */
+        font-size: 24px;
+        text-anchor: middle;
+      }
+      .grid-square {
+        fill: #D3D3D3; /* Light Gray from the image */
+        stroke: #D3D3D3;
+        stroke-width: 1;
+        rx: 4; /* Rounded corners */
+        ry: 4;
+      }
+      .lexi-color {
+        fill: #6AAA64; /* Green from the image */
+      }
+      .guess-color {
+        fill: #FFA500; /* Orange from the image */
+      }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="160" height="160" fill="white"/>
+
+  <g opacity="0.4">
+    <rect x="13" y="5" width="30" height="30" class="grid-square"/>
+    <rect x="48" y="5" width="30" height="30" class="grid-square"/>
+    <rect x="83" y="5" width="30" height="30" class="grid-square"/>
+  </g>
+
+  <g opacity="0.4">
+    <rect x="13" y="45" width="30" height="30" class="grid-square"/>
+    <rect x="48" y="45" width="30" height="30" class="grid-square"/>
+    <rect x="83" y="45" width="30" height="30" class="grid-square"/>
+  </g>
+
+
+  <g opacity="0.4">
+    <rect x="13" y="85" width="30" height="30" class="grid-square"/>
+    <rect x="48" y="85" width="30" height="30" class="grid-square"/>
+    <rect x="83" y="85" width="30" height="30" class="grid-square"/>
+  </g>
+
+
+  <text x="30" y="69" class="logo-text lexi-color">L</text>
+  <text x="65" y="69" class="logo-text lexi-color">e</text>
+  <text x="98" y="69" class="logo-text lexi-color">x</text>
+
+  <text x="133" y="69" class="logo-text guess-color">i</text>
+  <text x="30" y="90" class="logo-text lexi-color">G</text>
+  <text x="65" y="69" class="logo-text lexi-color">u</text>
+
+  <text x="98" y="69" class="logo-text lexi-color">e</text>
+  <text x="133" y="69" class="logo-text guess-color">s</text>
+  <text x="133" y="69" class="logo-text guess-color">s</text>
+</svg> -->
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="32" height="32" fill="white"/>
+  
+  <!-- Letter tile -->
+  <rect x="4" y="4" width="24" height="24" rx="4" fill="#6AAA64" stroke="#4A8A44" stroke-width="1"/>
+  
+  <!-- Letter L -->
+  <path d="M10 8V24H22V20H14V8H10Z" fill="white"/>
+</svg>
