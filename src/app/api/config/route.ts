@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { WordliConfig, DEFAULT_CONFIG } from '@/app/components/config';
+import { LexiGuessConfig, DEFAULT_CONFIG } from '@/app/components/config';
 
 // In a real app, this would be in a database
-let currentConfig: WordliConfig = DEFAULT_CONFIG;
+let currentConfig: LexiGuessConfig = DEFAULT_CONFIG;
 
 export async function GET() {
   return NextResponse.json(currentConfig);
@@ -39,6 +39,7 @@ export async function POST(request: Request) {
     
     return NextResponse.json(currentConfig);
   } catch (error) {
+    console.error('Error updating config:', error);
     return NextResponse.json(
       { error: 'Invalid request body' },
       { status: 400 }
