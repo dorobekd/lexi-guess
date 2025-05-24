@@ -1,11 +1,17 @@
 import { useState } from 'react';
 import { LETTER_STATUS } from '../components/types';
 
-type UseGameStateReturn = {
+type GameState = {
   answer: string;
-  guesses: string[];
-  currentGuess: string;
-  keyboardStatuses: Record<string, LETTER_STATUS>;
+  guessState: {
+    submitted: string[];
+    current: string;
+  };
+  keyboardState: Record<string, LETTER_STATUS>;
+};
+
+type UseGameStateReturn = {
+  gameState: GameState;
   hasWon: boolean;
   isGameOver: boolean;
   setCurrentGuess: (guess: string) => void;
@@ -14,49 +20,71 @@ type UseGameStateReturn = {
 };
 
 export function useGameState(maxGuesses: number): UseGameStateReturn {
-  const [answer] = useState("FARTS"); // TODO: Make this dynamic/configurable
-  const [guesses, setGuesses] = useState<string[]>([]);
-  const [currentGuess, setCurrentGuess] = useState("");
-  const [keyboardStatuses, setKeyboardStatuses] = useState<Record<string, LETTER_STATUS>>({});
+  const [gameState, setGameState] = useState<GameState>({
+    answer: "FARTS", // TODO: Make this dynamic/configurable
+    guessState: {
+      submitted: [],
+      current: "",
+    },
+    keyboardState: {},
+  });
 
   const getLetterStatus = (letter: string, index: number): LETTER_STATUS => {
-    if (answer.includes(letter)) {
-      if (answer[index] === letter) return LETTER_STATUS.IN_POSITION;
+    if (gameState.answer.includes(letter)) {
+      if (gameState.answer[index] === letter) return LETTER_STATUS.IN_POSITION;
       return LETTER_STATUS.OUT_OF_POSITION;
     }
     return LETTER_STATUS.NOT_IN_WORD;
   };
 
+  const setCurrentGuess = (guess: string) => {
+    setGameState(prev => ({
+      ...prev,
+      guessState: {
+        ...prev.guessState,
+        current: guess
+      }
+    }));
+  };
+
   const submitGuess = () => {
-    const newKeyboardStatuses = { ...keyboardStatuses };
-    currentGuess.split('').forEach((letter, index) => {
+    const newKeyboardState = { ...gameState.keyboardState };
+    gameState.guessState.current.split('').forEach((letter, index) => {
       const status = getLetterStatus(letter, index);
-      if (!newKeyboardStatuses[letter] || 
+      if (!newKeyboardState[letter] || 
           (status === LETTER_STATUS.IN_POSITION) || 
-          (status === LETTER_STATUS.OUT_OF_POSITION && newKeyboardStatuses[letter] === LETTER_STATUS.NOT_IN_WORD)) {
-        newKeyboardStatuses[letter] = status;
+          (status === LETTER_STATUS.OUT_OF_POSITION && newKeyboardState[letter] === LETTER_STATUS.NOT_IN_WORD)) {
+        newKeyboardState[letter] = status;
       }
     });
-    setKeyboardStatuses(newKeyboardStatuses);
 
-    setGuesses(prev => [...prev, currentGuess]);
-    setCurrentGuess("");
+    setGameState(prev => ({
+      ...prev,
+      guessState: {
+        submitted: [...prev.guessState.submitted, prev.guessState.current],
+        current: "",
+      },
+      keyboardState: newKeyboardState
+    }));
   };
 
   const resetGame = () => {
-    setGuesses([]);
-    setCurrentGuess("");
-    setKeyboardStatuses({});
+    setGameState({
+      answer: "FARTS", // TODO: Make this dynamic/configurable
+      guessState: {
+        submitted: [],
+        current: "",
+      },
+      keyboardState: {},
+    });
   };
 
-  const hasWon = guesses.length > 0 && guesses[guesses.length - 1] === answer;
-  const isGameOver = guesses.length >= maxGuesses || hasWon;
+  const hasWon = gameState.guessState.submitted.length > 0 && 
+    gameState.guessState.submitted[gameState.guessState.submitted.length - 1] === gameState.answer;
+  const isGameOver = gameState.guessState.submitted.length >= maxGuesses || hasWon;
 
   return {
-    answer,
-    guesses,
-    currentGuess,
-    keyboardStatuses,
+    gameState,
     hasWon,
     isGameOver,
     setCurrentGuess,
