@@ -4,7 +4,7 @@ import OnScreenKeyboard from "../keyboard/OnScreenKeyboard";
 import Word from "../word/Word";
 import { Box, IconButton, Alert } from "@mui/material";
 import { LETTER_STATUS } from "../types";
-import { WordliConfig } from "../config";
+import { LexiGuessConfig } from "../config";
 import SettingsDialog from "../SettingsDialog";
 import SettingsIcon from '@mui/icons-material/Settings';
 import GameOverModal from "../modals/GameOverModal";
@@ -12,7 +12,7 @@ import VictoryModal from "../modals/VictoryModal";
 import LoadingPlaceholder from "./LoadingPlaceholder";
 import { useConfigContext } from "../../providers/ConfigProvider";
 
-export default function WordliContainer() {
+export default function LexiGuessContainer() {
   const { config, loading, error, saveConfig } = useConfigContext();
   const [settingsOpen, setSettingsOpen] = useState(false);
   
@@ -51,7 +51,7 @@ export default function WordliContainer() {
     setKeyboardStatuses({});
   };
 
-  const handleSaveConfig = async (newConfig: WordliConfig) => {
+  const handleSaveConfig = async (newConfig: LexiGuessConfig) => {
     try {
       await saveConfig(newConfig);
       resetGame(); // Reset the game with new config

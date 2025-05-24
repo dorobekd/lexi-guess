@@ -1,13 +1,13 @@
 "use client";
 import { createContext, useContext, ReactNode } from 'react';
-import { WordliConfig } from '../components/config';
+import { LexiGuessConfig } from '../components/config';
 import { useConfig } from '../hooks/useConfig';
 
 type ConfigContextType = {
-  config: WordliConfig;
+  config: LexiGuessConfig;
   loading: boolean;
   error: Error | null;
-  saveConfig: (newConfig: WordliConfig) => Promise<void>;
+  saveConfig: (newConfig: LexiGuessConfig) => Promise<void>;
 };
 
 const ConfigContext = createContext<ConfigContextType | null>(null);

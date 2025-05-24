@@ -1,13 +1,13 @@
 export type GameMode = 'daily' | 'practice' | 'custom';
 
-export type WordliConfig = {
+export type LexiGuessConfig = {
   maxWordLength: number;
   maxGuesses: number;
   gameMode: GameMode;
   keyboardRows: string[][];
 };
 
-export const DEFAULT_CONFIG: WordliConfig = {
+export const DEFAULT_CONFIG: LexiGuessConfig = {
   maxWordLength: 5,
   maxGuesses: 6,
   gameMode: 'practice',

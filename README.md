@@ -1,7 +1,9 @@
-## Wordli
-This is a Wordle clone with customizable options to make things interesting
+## Lexi-Guess
+
+A modern word-guessing game with customizable options to make things interesting. Challenge yourself with different word lengths, categories, and game modes!
 
 ## Planned Features
+
 - Categories based on user input
 - Customizable word length
 - Time trial option

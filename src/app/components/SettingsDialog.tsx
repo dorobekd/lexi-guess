@@ -11,14 +11,14 @@ import {
   MenuItem,
   Stack
 } from '@mui/material';
-import { WordliConfig } from './config';
+import { LexiGuessConfig } from './config';
 import { useState } from 'react';
 
 type SettingsDialogProps = {
   open: boolean;
   onClose: () => void;
-  currentConfig: WordliConfig;
-  onSave: (config: WordliConfig) => Promise<void>;
+  currentConfig: LexiGuessConfig;
+  onSave: (config: LexiGuessConfig) => Promise<void>;
 };
 
 export default function SettingsDialog({ 
@@ -27,7 +27,7 @@ export default function SettingsDialog({
   currentConfig,
   onSave 
 }: SettingsDialogProps) {
-  const [config, setConfig] = useState<WordliConfig>(currentConfig);
+  const [config, setConfig] = useState<LexiGuessConfig>(currentConfig);
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
