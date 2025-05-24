@@ -6,7 +6,7 @@ import { useEffect, useCallback, useRef } from 'react';
 const CONFIG_URL = '/api/config';
 
 type UseConfigReturn = {
-  config: LexiGuessConfig;
+  config: LexiGuessConfig | null;
   loading: boolean;
   error: Error | null;
   saveConfig: (newConfig: LexiGuessConfig) => Promise<void>;
