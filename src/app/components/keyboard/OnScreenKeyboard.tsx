@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from 'react';
 import { Box } from "@mui/material";
 import { LETTER_STATUS } from '../types';
 import Letter from '../word/Letter';
@@ -24,18 +25,31 @@ export default function OnScreenKeyboard({
   disabled = false,
   rows
 }: OnScreenKeyboardProps) {
-  const handleKeyClick = (key: string) => {
-    if (disabled) return;
-    
-    if (key === 'ENTER') {
-      if (value.length === maxLength) {
-        onSubmit();
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (disabled) return;
+
+      if (e.key === 'Enter') {
+        if (value.length === maxLength) {
+          onSubmit();
+        }
+      } else if (e.key === 'Backspace') {
+        onChange(value.slice(0, -1));
+      } else {
+        const key = e.key.toUpperCase();
+        if (rows.flat().includes(key) && value.length < maxLength) {
+          onChange(value + key);
+        }
       }
-    } else if (key === 'BACK') {
-      onChange(value.slice(0, -1));
-    } else if (value.length < maxLength) {
-      onChange(value + key);
-    }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [disabled, maxLength, onChange, onSubmit, rows, value]);
+
+  const handleKeyClick = (key: string) => {
+    if (disabled || value.length >= maxLength) return;
+    onChange(value + key);
   };
 
   return (

@@ -8,6 +8,7 @@ type ConfigContextType = {
   loading: boolean;
   error: Error | null;
   saveConfig: (newConfig: LexiGuessConfig) => Promise<void>;
+  refreshConfig: () => Promise<void>;
 };
 
 const ConfigContext = createContext<ConfigContextType | null>(null);

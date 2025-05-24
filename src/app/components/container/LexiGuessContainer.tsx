@@ -1,54 +1,32 @@
 "use client";
+
 import { useState } from "react";
 import OnScreenKeyboard from "../keyboard/OnScreenKeyboard";
 import Word from "../word/Word";
 import { Box, Alert } from "@mui/material";
-import { LETTER_STATUS } from "../types";
 import { LexiGuessConfig } from "../config";
 import SettingsDialog from "../SettingsDialog";
 import GameOverModal from "../modals/GameOverModal";
 import VictoryModal from "../modals/VictoryModal";
 import LoadingPlaceholder from "./LoadingPlaceholder";
 import { useConfigContext } from "../../providers/ConfigProvider";
+import { GameStateProvider, useGameStateContext } from "../../providers/GameStateProvider";
 
-export default function LexiGuessContainer() {
+function LexiGuessContent() {
   const { config, loading, error, saveConfig } = useConfigContext();
   const [settingsOpen, setSettingsOpen] = useState(false);
   
-  const [answer] = useState("FARTS");
-  const [guesses, setGuesses] = useState<string[]>([]);
-  const [currentGuess, setCurrentGuess] = useState("");
-  const [keyboardStatuses, setKeyboardStatuses] = useState<Record<string, LETTER_STATUS>>({});
-
-  const getLetterStatus = (letter: string, index: number): LETTER_STATUS => {
-    if (answer.includes(letter)) {
-      if (answer[index] === letter) return LETTER_STATUS.IN_POSITION;
-      return LETTER_STATUS.OUT_OF_POSITION;
-    }
-    return LETTER_STATUS.NOT_IN_WORD;
-  };
-
-  const handleSubmitGuess = () => {
-    const newKeyboardStatuses = { ...keyboardStatuses };
-    currentGuess.split('').forEach((letter, index) => {
-      const status = getLetterStatus(letter, index);
-      if (!newKeyboardStatuses[letter] || 
-          (status === LETTER_STATUS.IN_POSITION) || 
-          (status === LETTER_STATUS.OUT_OF_POSITION && newKeyboardStatuses[letter] === LETTER_STATUS.NOT_IN_WORD)) {
-        newKeyboardStatuses[letter] = status;
-      }
-    });
-    setKeyboardStatuses(newKeyboardStatuses);
-
-    setGuesses(prev => [...prev, currentGuess]);
-    setCurrentGuess("");
-  };
-
-  const resetGame = () => {
-    setGuesses([]);
-    setCurrentGuess("");
-    setKeyboardStatuses({});
-  };
+  const { 
+    currentGuess,
+    submittedGuesses,
+    keyboardStatuses,
+    answer,
+    hasWon,
+    isGameOver,
+    setCurrentGuess,
+    submitGuess,
+    resetGame
+  } = useGameStateContext();
 
   const handleSaveConfig = async (newConfig: LexiGuessConfig) => {
     try {
@@ -58,9 +36,6 @@ export default function LexiGuessContainer() {
       // Error is already handled by useConfig
     }
   };
-
-  const hasWon = guesses.length > 0 && guesses[guesses.length - 1] === answer;
-  const isGameOver = guesses.length >= config.maxGuesses || hasWon;
 
   if (loading) {
     return (
@@ -85,13 +60,13 @@ export default function LexiGuessContainer() {
       )}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         {allWordSlots.map((_, index) => {
-          const isCurrentRow = index === guesses.length;
-          const isSubmittedRow = index < guesses.length;
+          const isCurrentRow = index === submittedGuesses.length;
+          const isSubmittedRow = index < submittedGuesses.length;
 
           return (
             <Word 
               key={index}
-              guess={isCurrentRow ? currentGuess : isSubmittedRow ? guesses[index] : ""}
+              guess={isCurrentRow ? currentGuess : isSubmittedRow ? submittedGuesses[index] : ""}
               answer={answer}
               isSubmitted={isSubmittedRow}
               maxLength={config.maxWordLength}
@@ -102,7 +77,7 @@ export default function LexiGuessContainer() {
       </Box>
       <OnScreenKeyboard 
         onChange={setCurrentGuess} 
-        onSubmit={handleSubmitGuess}
+        onSubmit={submitGuess}
         value={currentGuess}
         keyStatuses={keyboardStatuses}
         maxLength={config.maxWordLength}
@@ -122,8 +97,28 @@ export default function LexiGuessContainer() {
       <VictoryModal 
         open={hasWon}
         onClose={resetGame}
-        guessCount={guesses.length}
+        guessCount={submittedGuesses.length}
       />
     </Box>
   );
+}
+
+export default function LexiGuessContainer() {
+  const { config } = useConfigContext();
+  
+  return (
+    <GameStateProvider maxGuesses={config.maxGuesses}>
+      <LexiGuessContent />
+    </GameStateProvider>
+  );
+}
+
+export function useGameGuesses() {
+  const { currentGuess, submittedGuesses, setCurrentGuess } = useGameStateContext();
+  return { currentGuess, submittedGuesses, setCurrentGuess };
+}
+
+export function useKeyboard() {
+  const { keyboardStatuses } = useGameStateContext();
+  return { keyboardStatuses };
 }
