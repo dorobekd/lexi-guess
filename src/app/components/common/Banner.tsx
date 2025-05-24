@@ -2,13 +2,17 @@
 
 import { AppBar, Toolbar, Typography, Box, IconButton } from "@mui/material";
 import SettingsIcon from '@mui/icons-material/Settings';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import LightModeIcon from '@mui/icons-material/LightMode';
 import { useState } from "react";
 import SettingsDialog from "../SettingsDialog";
 import { useConfigContext } from "../../providers/ConfigProvider";
+import { useTheme } from "../../providers/ThemeProvider";
 
 export default function Banner() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { config, saveConfig } = useConfigContext();
+  const { isDarkMode, toggleTheme } = useTheme();
 
   return (
     <>
@@ -39,6 +43,13 @@ export default function Banner() {
             Lexi-Guess
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
+          <IconButton 
+            onClick={toggleTheme}
+            size="large"
+            sx={{ mr: 1 }}
+          >
+            {isDarkMode ? <LightModeIcon /> : <DarkModeIcon />}
+          </IconButton>
           <IconButton 
             onClick={() => setSettingsOpen(true)}
             size="large"
