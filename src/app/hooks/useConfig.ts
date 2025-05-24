@@ -1,61 +1,54 @@
-"use client";
-import { useState, useEffect } from 'react';
-import { WordliConfig, DEFAULT_CONFIG } from '../components/config';
+"use client"
+import { LexiGuessConfig, DEFAULT_CONFIG } from '../components/config';
+import { useFetchData } from './useFetchData';
+import { useEffect, useCallback, useRef } from 'react';
+
+const CONFIG_URL = '/api/config';
 
 type UseConfigReturn = {
-  config: WordliConfig;
+  config: LexiGuessConfig;
   loading: boolean;
   error: Error | null;
-  saveConfig: (newConfig: WordliConfig) => Promise<void>;
+  saveConfig: (newConfig: LexiGuessConfig) => Promise<void>;
+  refreshConfig: () => Promise<void>;
 };
 
 export function useConfig(): UseConfigReturn {
-  const [config, setConfig] = useState<WordliConfig>(DEFAULT_CONFIG);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const isInitialMount = useRef(true);
+  
+  const { 
+    data, 
+    error, 
+    isLoading, 
+    fetchData 
+  } = useFetchData<LexiGuessConfig>({
+    initialData: DEFAULT_CONFIG,
+  });
 
+  const fetchConfig = useCallback(() => {
+    return fetchData(CONFIG_URL);
+  }, [fetchData]);
+
+  const saveConfig = useCallback(async (newConfig: LexiGuessConfig) => {
+    await fetchData(CONFIG_URL, {
+      method: 'POST',
+      body: newConfig,
+    });
+  }, [fetchData]);
+
+  // Only fetch on initial mount
   useEffect(() => {
-    fetchConfig();
-  }, []);
-
-  const fetchConfig = async () => {
-    try {
-      const response = await fetch('/api/config');
-      if (!response.ok) throw new Error('Failed to fetch config');
-      const data = await response.json();
-      setConfig(data);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Unknown error'));
-      setConfig(DEFAULT_CONFIG);
-    } finally {
-      setLoading(false);
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      fetchConfig();
     }
-  };
-
-  const saveConfig = async (newConfig: WordliConfig) => {
-    try {
-      const response = await fetch('/api/config', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newConfig),
-      });
-
-      if (!response.ok) throw new Error('Failed to save config');
-      
-      const data = await response.json();
-      setConfig(data);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to save settings'));
-      throw err; // Re-throw to let the caller handle the error
-    }
-  };
+  }, [fetchConfig]);
 
   return {
-    config,
-    loading,
+    config: data, // ?? DEFAULT_CONFIG,
+    loading: isLoading,
     error,
-    saveConfig
+    saveConfig,
+    refreshConfig: fetchConfig
   };
 } 
