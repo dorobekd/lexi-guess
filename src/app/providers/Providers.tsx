@@ -1,14 +1,20 @@
-import { ReactNode } from 'react';
+"use client";
+
+import CssBaseline from '@mui/material/CssBaseline';
 import { ConfigProvider } from './ConfigProvider';
+import { ThemeProvider } from './ThemeProvider';
 
 type ProvidersProps = {
-  children: ReactNode;
+  children: React.ReactNode;
 };
 
 export default function Providers({ children }: ProvidersProps) {
   return (
-    <ConfigProvider>
-      {children}
-    </ConfigProvider>
+    <ThemeProvider>
+      <CssBaseline />
+      <ConfigProvider>
+        {children}
+      </ConfigProvider>
+    </ThemeProvider>
   );
 } 
