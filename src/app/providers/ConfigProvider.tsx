@@ -4,7 +4,7 @@ import { LexiGuessConfig } from '../components/config';
 import { useConfig } from '../hooks/useConfig';
 
 type ConfigContextType = {
-  config: LexiGuessConfig;
+  config: LexiGuessConfig | null;
   loading: boolean;
   error: Error | null;
   saveConfig: (newConfig: LexiGuessConfig) => Promise<void>;
