@@ -1,28 +1,35 @@
 import { Box, Button } from "@mui/material";
+import { LETTER_STATUS } from "../types";
+import { LETTER_STATUS_TO_COLOR } from "../word/Letter";
+import AnimatedButton from "../common/AnimatedButton";
 
 type KeyboardControlsProps = {
   onBackspace: () => void;
   onSubmit: () => void;
+  isBackspaceDisabled: boolean;
   isSubmitDisabled: boolean;
 };
 
 export default function KeyboardControls({
   onBackspace,
   onSubmit,
+  isBackspaceDisabled,
   isSubmitDisabled
 }: KeyboardControlsProps) {
   return (
     <Box sx={{ display: 'flex', justifyContent: 'center', gap: 0.5, mt: 0.5 }}>
-      <Button onClick={onBackspace} sx={{ px: 2 }}>
-        Backspace
-      </Button>
-      <Button 
+      <AnimatedButton
+        onClick={onBackspace} 
+        disabled={isBackspaceDisabled}
+      >
+        BACK
+      </AnimatedButton>
+      <AnimatedButton
         onClick={onSubmit} 
-        sx={{ px: 2 }} 
         disabled={isSubmitDisabled}
       >
-        Submit
-      </Button>
+        ENTER
+      </AnimatedButton>
     </Box>
   );
 } 
