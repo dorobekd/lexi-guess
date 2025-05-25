@@ -103,22 +103,10 @@ function LexiGuessContent() {
   );
 }
 
-export default function LexiGuessContainer() {
-  const { config } = useConfigContext();
-  
+export default function LexiGuessContainer() {  
   return (
-    <GameStateProvider maxGuesses={config.maxGuesses}>
+    <GameStateProvider>
       <LexiGuessContent />
     </GameStateProvider>
   );
-}
-
-export function useGameGuesses() {
-  const { currentGuess, submittedGuesses, setCurrentGuess } = useGameStateContext();
-  return { currentGuess, submittedGuesses, setCurrentGuess };
-}
-
-export function useKeyboard() {
-  const { keyboardStatuses } = useGameStateContext();
-  return { keyboardStatuses };
 }
