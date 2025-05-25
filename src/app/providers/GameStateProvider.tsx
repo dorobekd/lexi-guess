@@ -43,11 +43,10 @@ export function useGameStateContext() {
 
 type GameStateProviderProps = {
   children: ReactNode;
-  maxGuesses: number;
 };
 
-export function GameStateProvider({ children, maxGuesses }: GameStateProviderProps) {
-  const { loading: isConfigLoading } = useConfigContext();
+export function GameStateProvider({ children }: GameStateProviderProps) {
+  const { config, loading: isConfigLoading } = useConfigContext();
   const { 
     answer: fetchedAnswer, 
     loading, 
@@ -129,7 +128,7 @@ export function GameStateProvider({ children, maxGuesses }: GameStateProviderPro
 
   const hasWon = gameState.guessState.submitted.length > 0 && 
     gameState.guessState.submitted[gameState.guessState.submitted.length - 1] === gameState.answer;
-  const isGameOver = gameState.guessState.submitted.length >= maxGuesses || hasWon;
+  const isGameOver = gameState.guessState.submitted.length >= config.maxGuesses || hasWon;
 
   const value = {
     // Selectors
