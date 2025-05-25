@@ -1,6 +1,4 @@
-import { Box, Button } from "@mui/material";
-import { LETTER_STATUS } from "../types";
-import { LETTER_STATUS_TO_COLOR } from "../word/Letter";
+import { Box } from "@mui/material";
 import AnimatedButton from "../common/AnimatedButton";
 
 type KeyboardControlsProps = {
