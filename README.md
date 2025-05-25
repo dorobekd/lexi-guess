@@ -1,12 +1,17 @@
 ## [Lexi-Guess](https://lexi-guess.vercel.app/)
 
-A modern word-guessing game with customizable options to make things interesting. Challenge yourself with different word lengths, categories, and game modes!
+A lexical categorical guessing game with customizable options to make things interesting. Challenge yourself with different word lengths, input your own categories that are meaningful to you, and up the ante with adjustable difficulty levels!
 
 ## Planned Features
 
 - Categories based on user input
 - Customizable word length
+- Internationalization support
+    - Add Polish language support
+- Strengthen security in current back-end approach by restructuring APIs 
+    - Create /new-game and /submit-guess API so that answer never gets sent 
 - Difficulty levels
+    - Incorporate accents for Hard difficulty
 - Time trial option
 - Disable highlighting for letters that are in word but not in correct position
 - Colorblind settings
