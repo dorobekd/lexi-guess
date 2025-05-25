@@ -1,4 +1,4 @@
-## Lexi-Guess
+## [Lexi-Guess](https://lexi-guess.vercel.app/)
 
 A modern word-guessing game with customizable options to make things interesting. Challenge yourself with different word lengths, categories, and game modes!
 
@@ -6,6 +6,7 @@ A modern word-guessing game with customizable options to make things interesting
 
 - Categories based on user input
 - Customizable word length
+- Difficulty levels
 - Time trial option
 - Disable highlighting for letters that are in word but not in correct position
 - Colorblind settings
