@@ -8,6 +8,8 @@ type AnimatedButtonProps = Omit<ButtonProps, keyof HTMLMotionProps<"button">> & 
   delay?: number;
   children: ReactNode;
   onClick?: () => void;
+  disabled?: boolean;
+  sx?: object;
 };
 
 export default function AnimatedButton({ 
@@ -39,6 +41,7 @@ export default function AnimatedButton({
       whileTap={{ scale: 0.95 }}
       sx={{
         border: '2px solid',
+        ...buttonProps.sx,
       }}
     >
       {children}
