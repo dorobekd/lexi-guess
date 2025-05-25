@@ -37,38 +37,41 @@ export default function OnScreenKeyboard({
   return (
     <Box sx={{ 
       width: '100%', 
-      maxWidth: '600px', 
+      maxWidth: { xs: '100vw', sm: '600px' }, 
       mx: 'auto',
-      p: 2,
+      p: { xs: 1, sm: 2 },
       borderRadius: 2,
     }}>
       <Box sx={{ 
         display: 'flex', 
         flexDirection: 'column', 
-        gap: 1,
+        gap: { xs: 0.5, sm: 1 },
       }}>
-        {rows.map((row, i) => (
+        {rows.map((row, index) => (
           <Box 
-            key={i} 
-            sx={{ 
-              display: 'flex', 
-              justifyContent: 'center',
-              gap: 0.5,
-              mx: 'auto',
-              width: '100%',
-              '&:nth-of-type(2)': {
-                pl: 4
-              }
-            }}
+            key={index} 
+            sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: { xs: 0.25, sm: 0.5 },
+            mx: 'auto',
+            width: '100%',
+          }}
           >
             {row.map((key) => (
               <Box
                 key={key}
                 onClick={() => handleKeyClick(key)}
                 sx={{ 
+                  maxWidth: { xs: 32, sm: 40 }, // Prevent keys from getting too wide
+                  minHeight: { xs: 36 },
                   cursor: disabled ? 'default' : 'pointer',
                   opacity: disabled ? 0.7 : 1,
                   transition: 'opacity 0.2s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: { xs: '1.2rem', sm: '1.5rem' },
                   '&:hover': {
                     transform: disabled ? 'none' : 'scale(1.05)',
                   }
