@@ -11,7 +11,7 @@ export const STATUS_COLORS = {
   secondary: "text.secondary",
 } as const;
 
-const LETTER_STATUS_TO_COLOR: Record<LETTER_STATUS, keyof typeof STATUS_COLORS> = {
+export const LETTER_STATUS_TO_COLOR: Record<LETTER_STATUS, keyof typeof STATUS_COLORS> = {
   [LETTER_STATUS.IN_POSITION]: "success",
   [LETTER_STATUS.OUT_OF_POSITION]: "warning",
   [LETTER_STATUS.NOT_IN_WORD]: "error",
@@ -23,11 +23,12 @@ type LetterProps = {
   letter: string;
   position: LETTER_STATUS;
   index?: number;
+  sx?: object;
 };
 
 const MotionTypography = motion(Typography);
 
-const Letter = ({ letter, position, index = 0 }: LetterProps) => {
+const Letter = ({ letter, position, index = 0, sx }: LetterProps) => {
   const isEmpty = letter.trim() === '';
   const colorKey = LETTER_STATUS_TO_COLOR[position];
   
@@ -59,6 +60,7 @@ const Letter = ({ letter, position, index = 0 }: LetterProps) => {
         fontWeight: 'bold',
         fontSize: '1.25rem',
         bgcolor: isEmpty ? 'action.hover' : 'transparent',
+        ...sx,
       }}
     >
       {!isEmpty && toUpper(letter)}

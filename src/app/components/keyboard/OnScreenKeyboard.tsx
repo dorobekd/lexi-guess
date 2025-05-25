@@ -91,6 +91,7 @@ export default function OnScreenKeyboard({
           onBackspace={() => onChange(value.slice(0, -1))}
           onSubmit={onSubmit}
           isSubmitDisabled={value.length !== maxLength}
+          isBackspaceDisabled={value === ''}
         />
       </Box>
     </Box>
