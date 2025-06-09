@@ -3,7 +3,7 @@ import { isEmpty } from 'lodash-es';
 import { useConfigContext } from '../providers/ConfigProvider';
 import { LETTER_STATUS } from '../components/types';
 import { lexiGuessService } from '../services/LexiGuessService';
-import { logger } from '@/lib/clientLogger';
+import { withComponentContext } from '@/lib/logger';
 
 interface UseFetchAnswerReturn {
   isCorrect: boolean | null;
@@ -12,6 +12,8 @@ interface UseFetchAnswerReturn {
   initializeGame: () => Promise<void>;
   submitGuess: (guess: string) => Promise<{ correct: boolean; letterStatuses: Record<string, LETTER_STATUS> }>;
 }
+
+const logger = withComponentContext('useFetchAnswer');
 
 export function useFetchAnswer(): UseFetchAnswerReturn {
   const { config } = useConfigContext();

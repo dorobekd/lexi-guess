@@ -1,10 +1,9 @@
-import type { Logger } from 'winston';
-import type { RequestContext } from './types';
-import { createServerLogger, createClientLogger } from './createLogger';
+import type { Logger, RequestContext } from './types';
+import { serverLogger } from './serverLogger';
+import { clientLogger } from './clientLogger';
 
-// Create logger instances
-export const serverLogger = createServerLogger();
-export const clientLogger = createClientLogger();
+// Use appropriate logger based on environment
+export const logger = typeof window === 'undefined' ? serverLogger : clientLogger;
 
 /**
  * Helper function for request context in server-side code
@@ -26,7 +25,10 @@ export async function withRequestContext<T>(
  * Helper function for component context in client-side code
  */
 export function withComponentContext(componentName: string): Logger {
-  return clientLogger.child({ component: componentName });
+  return clientLogger.child({
+    component: componentName
+  });
 }
 
-export type { Logger, RequestContext }; 
+export type { Logger, RequestContext };
+export { serverLogger, clientLogger }; 

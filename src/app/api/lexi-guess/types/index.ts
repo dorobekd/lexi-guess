@@ -33,7 +33,7 @@ export interface WordCache {
 }
 
 export interface WordValidator {
-  validateGuess(guess: string, answer: string): GuessResult;
+  validateGuess(guess: string, answer: string): Promise<GuessResult>;
 }
 
 export interface InitResult {

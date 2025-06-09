@@ -1,16 +1,16 @@
 import { LexiGuessConfig } from '@/app/components/config';
-import { WordGenerator, WordCache, WordValidator, GuessResult } from '../types';
-import { CompositeWordGenerator } from './CompositeWordGenerator';
-import { WordCache as WordCacheImpl } from './WordCache';
-import { WordValidator as WordValidatorImpl } from './WordValidator';
+import { GuessResult } from '../types';
+import { WordValidator } from './WordValidator';
 import { OpenAIWordGenerator } from './OpenAIWordGenerator';
 import { FallbackWordService } from './FallbackWordService';
-import logger from '@/app/lib/logger';
+import { withRequestContext } from '@/lib/logger';
+import { randomUUID } from 'crypto';
+import { CompositeWordGenerator } from './CompositeWordGenerator';
 
 export class WordService {
-  private wordGenerator: WordGenerator;
-  private wordCache: WordCache;
+  private wordGenerator: CompositeWordGenerator;
   private wordValidator: WordValidator;
+  private wordCache: Map<string, { word: string; source: string }> = new Map();
   private gameConfigs: Map<string, LexiGuessConfig> = new Map();
 
   constructor() {
@@ -18,46 +18,42 @@ export class WordService {
       new OpenAIWordGenerator(),
       new FallbackWordService()
     );
-    this.wordCache = new WordCacheImpl();
-    this.wordValidator = new WordValidatorImpl();
-  }
-
-  public async initializeGame(config: LexiGuessConfig): Promise<{ gameId: string; source: string }> {
-    const result = await this.wordGenerator.generateWords(config);
-    const word = result.words[0];
-    const gameId = this.generateGameId();
-
-    logger.info('🎮 Setting answer for game', { gameId, word, source: result.source });
-    
-    this.wordCache.setWord(config, word, result.source);
-    this.wordCache.clearUsedWords(config);
-    this.wordCache.addUsedWord(config, word);
-    this.gameConfigs.set(gameId, config);
-
-    return {
-      gameId,
-      source: result.source
-    };
-  }
-
-  public async validateGuess(guess: string, gameId: string): Promise<GuessResult> {
-    const config = this.gameConfigs.get(gameId);
-    if (!config) {
-      throw new Error('Game not found');
-    }
-
-    const word = this.wordCache.getWord(config);
-    if (!word) {
-      throw new Error('Word not found for this game');
-    }
-
-    logger.debug('🎯 Validating guess against answer', { gameId, guess, answer: word });
-    
-    return this.wordValidator.validateGuess(guess, word);
+    this.wordValidator = new WordValidator();
   }
 
   private generateGameId(): string {
-    return Math.random().toString(36).substring(2, 15);
+    return randomUUID();
+  }
+
+  async initializeGame(config: LexiGuessConfig) {
+    return withRequestContext({ service: 'WordService' }, async (logger) => {
+      const result = await this.wordGenerator.generateWords(config);
+      const word = result.words[0]; // Take first word
+      const gameId = this.generateGameId();
+
+      logger.info('🎮 Setting answer for game', { gameId, word, source: result.source });
+      
+      this.wordCache.set(gameId, { word, source: result.source });
+      this.gameConfigs.set(gameId, config);
+      
+      return {
+        gameId,
+        source: result.source
+      };
+    });
+  }
+
+  async validateGuess(guess: string, gameId: string): Promise<GuessResult> {
+    return withRequestContext({ service: 'WordService', gameId }, async (logger) => {
+      const cached = this.wordCache.get(gameId);
+      if (!cached) {
+        throw new Error('Game not found');
+      }
+
+      logger.debug('🎯 Validating guess against answer', { gameId, guess, answer: cached.word });
+      
+      return this.wordValidator.validateGuess(guess, cached.word);
+    });
   }
 }
 

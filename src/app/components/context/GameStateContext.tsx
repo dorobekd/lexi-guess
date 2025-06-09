@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 import { LETTER_STATUS } from '../types';
 import { LexiGuessConfig } from '../config';
 import { lexiGuessService } from '@/app/services/LexiGuessService';
-import { logger } from '@/lib/clientLogger';
+import { withComponentContext } from '@/lib/logger';
 
 interface GameState {
   guesses: string[];
@@ -45,6 +45,8 @@ const defaultConfig: LexiGuessConfig = {
 };
 
 const GameStateContext = createContext<GameStateContextType | undefined>(undefined);
+
+const logger = withComponentContext('GameStateContext');
 
 export function GameStateProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<GameState>(initialState);
@@ -111,7 +113,7 @@ export function GameStateProvider({ children }: { children: React.ReactNode }) {
   // Initialize game on first render
   useEffect(() => {
     if (!state.gameId && !state.isInitializing) {
-      initializeGame(config).catch(console.error);
+      initializeGame(config).catch(error => logger.error('Failed to initialize game', { error }));
     }
   }, [config, initializeGame, state.gameId, state.isInitializing]);
 

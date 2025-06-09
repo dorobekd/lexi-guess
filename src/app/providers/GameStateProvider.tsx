@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useCallback, ReactNode, useEffect,
 import { LETTER_STATUS } from '../components/types';
 import { useFetchAnswer } from '../hooks/useFetchAnswer';
 import { useConfigContext } from './ConfigProvider';
-import { logger } from '@/lib/clientLogger';
+import { withComponentContext } from '@/lib/logger';
 
 type GameState = {
   guessState: {
@@ -39,6 +39,8 @@ const GameStateContext = createContext<GameStateContextType | undefined>(undefin
 type GameStateProviderProps = {
   children: ReactNode;
 };
+
+const logger = withComponentContext('GameStateProvider');
 
 export function GameStateProvider({ children }: GameStateProviderProps) {
   const { config } = useConfigContext();

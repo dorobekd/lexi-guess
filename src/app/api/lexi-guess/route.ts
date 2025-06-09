@@ -3,6 +3,7 @@ import { LexiGuessConfig } from '@/app/components/config';
 import { wordService } from './services/WordService';
 import { guessRateLimiter, initRateLimiter } from './services/RateLimiterService';
 import { z } from 'zod';
+import { withRequestContext, serverLogger } from '@/lib/logger';
 
 const configSchema = z.object({
   locale: z.enum(['EN', 'PL'] as const),
@@ -17,14 +18,14 @@ const guessSchema = z.object({
   gameId: z.string(),
 });
 
-function validateConfig(config: unknown): config is LexiGuessConfig {
+function validateConfig(config: unknown, logger = serverLogger): config is LexiGuessConfig {
   try {
-    console.log('Validating config:', config);
+    logger.info('Validating config', { config });
     configSchema.parse(config);
-    console.log('Config validation successful');
+    logger.info('Config validation successful');
     return true;
   } catch (error) {
-    console.error('Config validation failed:', error);
+    logger.error('Config validation failed', { error });
     return false;
   }
 }
@@ -37,151 +38,159 @@ function addRateLimitHeaders(response: NextResponse, headers: Record<string, str
 }
 
 export async function GET(request: NextRequest) {
-  try {
-    const { success, headers } = await initRateLimiter.checkLimit(request, 'init', 5);
-    if (!success) {
-      const response = NextResponse.json(
-        { error: 'Too many initialization requests. Please try again later.' },
-        { status: 429 }
-      );
-      return addRateLimitHeaders(response, headers);
-    }
-
-    const { searchParams } = new URL(request.url);
-    const configStr = searchParams.get('config');
-    if (!configStr) {
-      return NextResponse.json({ error: 'Config parameter is required' }, { status: 400 });
-    }
-
-    let config: unknown;
+  return withRequestContext<NextResponse>({ path: '/api/lexi-guess' }, async (logger) => {
     try {
-      config = JSON.parse(configStr);
-    } catch (error) {
-      return NextResponse.json({ 
-        error: 'Invalid config JSON',
-        details: error instanceof Error ? error.message : 'JSON parse error'
-      }, { status: 400 });
-    }
-
-    if (!validateConfig(config)) {
-      return NextResponse.json({ 
-        error: 'Invalid config structure',
-        details: 'Config does not match required schema'
-      }, { status: 400 });
-    }
-
-    const result = await wordService.initializeGame(config);
-    const response = NextResponse.json(result);
-    return addRateLimitHeaders(response, headers);
-
-  } catch (error) {
-    console.error('❌ Error in GET:', error);
-    return NextResponse.json(
-      { 
-        error: 'Failed to initialize game',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 500 }
-    );
-  }
-}
-
-export async function POST(request: NextRequest) {
-  try {
-    const { success, headers } = await initRateLimiter.checkLimit(request, 'init', 5);
-    if (!success) {
-      const response = NextResponse.json(
-        { error: 'Too many initialization requests. Please try again later.' },
-        { status: 429 }
-      );
-      return addRateLimitHeaders(response, headers);
-    }
-
-    let config: unknown;
-    try {
-      config = await request.json();
-      console.log('Received POST body:', config);
-    } catch (error) {
-      return NextResponse.json({ 
-        error: 'Invalid JSON body',
-        details: error instanceof Error ? error.message : 'JSON parse error'
-      }, { status: 400 });
-    }
-
-    if (!validateConfig(config)) {
-      return NextResponse.json({ 
-        error: 'Invalid config structure',
-        details: 'Config does not match required schema'
-      }, { status: 400 });
-    }
-
-    const result = await wordService.initializeGame(config);
-    const response = NextResponse.json(result);
-    return addRateLimitHeaders(response, headers);
-
-  } catch (error) {
-    console.error('❌ Error in POST:', error);
-    return NextResponse.json(
-      { 
-        error: 'Failed to initialize game',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 500 }
-    );
-  }
-}
-
-export async function PUT(request: NextRequest) {
-  try {
-    let body: unknown;
-    try {
-      body = await request.json();
-      console.log('Received guess request:', body);
-    } catch (error) {
-      return NextResponse.json({ 
-        error: 'Invalid JSON body',
-        details: error instanceof Error ? error.message : 'JSON parse error'
-      }, { status: 400 });
-    }
-    
-    try {
-      const { guess, gameId } = guessSchema.parse(body);
-      console.log('Parsed guess data:', { guess, gameId });
-
-      // Rate limit check for guesses
-      const { success, headers } = await guessRateLimiter.checkLimit(request, 'guess', 10);
+      const { success, headers } = await initRateLimiter.checkLimit(request, 'init', 5);
       if (!success) {
         const response = NextResponse.json(
-          { error: 'Too many guess attempts. Please try again later.' },
+          { error: 'Too many initialization requests. Please try again later.' },
           { status: 429 }
         );
         return addRateLimitHeaders(response, headers);
       }
-      console.log('Rate limit check passed');
 
-      console.log('Validating guess');
-      const result = await wordService.validateGuess(guess, gameId);
-      console.log('Validation result:', result);
+      const { searchParams } = new URL(request.url);
+      const configStr = searchParams.get('config');
+      if (!configStr) {
+        return NextResponse.json({ error: 'Config parameter is required' }, { status: 400 });
+      }
 
-      const response = NextResponse.json(result);
-      return addRateLimitHeaders(response, headers);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
+      let config: unknown;
+      try {
+        config = JSON.parse(configStr);
+      } catch (error) {
         return NextResponse.json({ 
-          error: 'Invalid request data',
-          details: error.errors
+          error: 'Invalid config JSON',
+          details: error instanceof Error ? error.message : 'JSON parse error'
         }, { status: 400 });
       }
-      throw error; // Re-throw for the outer catch block
+
+      if (!validateConfig(config, logger)) {
+        return NextResponse.json({ 
+          error: 'Invalid config structure',
+          details: 'Config does not match required schema'
+        }, { status: 400 });
+      }
+
+      logger.info('Validating config', { config });
+      const result = await wordService.initializeGame(config);
+      logger.info('Config validation successful');
+      const response = NextResponse.json(result);
+      return addRateLimitHeaders(response, headers);
+
+    } catch (error) {
+      logger.error('Error in GET request', { error });
+      return NextResponse.json(
+        { 
+          error: 'Failed to initialize game',
+          details: error instanceof Error ? error.message : 'Unknown error'
+        },
+        { status: 500 }
+      );
     }
-  } catch (error) {
-    console.error('❌ Error in PUT:', error);
-    return NextResponse.json(
-      { 
-        error: 'Failed to validate guess',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 500 }
-    );
-  }
+  });
+}
+
+export async function POST(request: NextRequest) {
+  return withRequestContext<NextResponse>({ path: '/api/lexi-guess' }, async (logger) => {
+    try {
+      const { success, headers } = await initRateLimiter.checkLimit(request, 'init', 5);
+      if (!success) {
+        const response = NextResponse.json(
+          { error: 'Too many initialization requests. Please try again later.' },
+          { status: 429 }
+        );
+        return addRateLimitHeaders(response, headers);
+      }
+
+      let config: unknown;
+      try {
+        config = await request.json();
+        logger.info('Received POST request', { config });
+      } catch (error) {
+        return NextResponse.json({ 
+          error: 'Invalid JSON body',
+          details: error instanceof Error ? error.message : 'JSON parse error'
+        }, { status: 400 });
+      }
+
+      if (!validateConfig(config, logger)) {
+        return NextResponse.json({ 
+          error: 'Invalid config structure',
+          details: 'Config does not match required schema'
+        }, { status: 400 });
+      }
+
+      const result = await wordService.initializeGame(config);
+      const response = NextResponse.json(result);
+      return addRateLimitHeaders(response, headers);
+
+    } catch (error) {
+      logger.error('Error in POST request', { error });
+      return NextResponse.json(
+        { 
+          error: 'Failed to initialize game',
+          details: error instanceof Error ? error.message : 'Unknown error'
+        },
+        { status: 500 }
+      );
+    }
+  });
+}
+
+export async function PUT(request: NextRequest) {
+  return withRequestContext<NextResponse>({ path: '/api/lexi-guess' }, async (logger) => {
+    try {
+      let body: unknown;
+      try {
+        body = await request.json();
+        logger.info('Received guess request', { body });
+      } catch (error) {
+        return NextResponse.json({ 
+          error: 'Invalid JSON body',
+          details: error instanceof Error ? error.message : 'JSON parse error'
+        }, { status: 400 });
+      }
+      
+      try {
+        const { guess, gameId } = guessSchema.parse(body);
+        logger.debug('Parsed guess data', { guess, gameId });
+
+        // Rate limit check for guesses
+        const { success, headers } = await guessRateLimiter.checkLimit(request, 'guess', 10);
+        if (!success) {
+          const response = NextResponse.json(
+            { error: 'Too many guess attempts. Please try again later.' },
+            { status: 429 }
+          );
+          return addRateLimitHeaders(response, headers);
+        }
+        logger.info('Rate limit check passed');
+
+        logger.info('Validating guess');
+        const result = await wordService.validateGuess(guess, gameId);
+        logger.info('Validation result', { result });
+
+        const response = NextResponse.json(result);
+        return addRateLimitHeaders(response, headers);
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          return NextResponse.json({ 
+            error: 'Invalid request data',
+            details: error.errors
+          }, { status: 400 });
+        }
+        throw error; // Re-throw for the outer catch block
+      }
+    } catch (error) {
+      logger.error('Error in PUT request', { error });
+      return NextResponse.json(
+        { 
+          error: 'Failed to validate guess',
+          details: error instanceof Error ? error.message : 'Unknown error'
+        },
+        { status: 500 }
+      );
+    }
+  });
 } 

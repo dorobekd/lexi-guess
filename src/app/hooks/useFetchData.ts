@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { withComponentContext } from '@/lib/logger';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
@@ -29,6 +30,8 @@ interface UseFetchDataReturn<T> extends FetchState<T> {
 const defaultHeaders = {
   'Content-Type': 'application/json',
 };
+
+const logger = withComponentContext('useFetchData');
 
 export function useFetchData<T>(options: UseFetchDataOptions<T> = {}): UseFetchDataReturn<T> {
   const { initialData = null, onSuccess, onError, initialFetchUrl } = options;
@@ -74,6 +77,7 @@ export function useFetchData<T>(options: UseFetchDataOptions<T> = {}): UseFetchD
       const data = await response.json();
       setState(prev => ({ ...prev, data, isLoading: false }));
       onSuccess?.(data);
+      logger.info('Data fetched successfully', { data });
     } catch (error) {
       const finalError = error instanceof Error ? error : new Error('An unknown error occurred');
       setState(prev => ({
@@ -82,6 +86,7 @@ export function useFetchData<T>(options: UseFetchDataOptions<T> = {}): UseFetchD
         isLoading: false,
       }));
       onError?.(finalError);
+      logger.error('Failed to fetch data', { error: finalError });
     }
   }, [onSuccess, onError]);
 
@@ -97,45 +102,3 @@ export function useFetchData<T>(options: UseFetchDataOptions<T> = {}): UseFetchD
     fetchData,
   };
 }
-
-// Example usage:
-/*
-interface WordResponse {
-  words: string[];
-  error?: string;
-}
-
-function MyComponent() {
-  const { data, error, isLoading, fetchData } = useFetchData<WordResponse>({
-    onSuccess: (data) => {
-      console.log('Data fetched successfully:', data);
-    },
-    onError: (error) => {
-      console.error('Failed to fetch data:', error);
-    }
-  });
-
-  // GET request
-  const handleFetch = () => {
-    fetchData('/api/words?config=...');
-  };
-
-  // POST request
-  const handleSubmit = () => {
-    fetchData('/api/words', {
-      method: 'POST',
-      body: { data: 'example' },
-    });
-  };
-
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-  if (!data) return <div>No data</div>;
-
-  return (
-    <div>
-      {data.words.map(word => <div key={word}>{word}</div>)}
-    </div>
-  );
-}
-*/ 
