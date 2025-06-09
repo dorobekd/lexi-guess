@@ -10,7 +10,7 @@ interface UseFetchAnswerReturn {
   loading: boolean;
   error: Error | null;
   initializeGame: () => Promise<void>;
-  submitGuess: (guess: string) => Promise<{ correct: boolean; letterStatuses: Record<number, LETTER_STATUS> }>;
+  submitGuess: (guess: string) => Promise<{ correct: boolean; letterStatuses: Record<string, LETTER_STATUS> }>;
 }
 
 export function useFetchAnswer(): UseFetchAnswerReturn {
@@ -69,17 +69,7 @@ export function useFetchAnswer(): UseFetchAnswerReturn {
       setError(null);
       const result = await lexiGuessService.submitGuess(config, guess, gameId.current);
       setIsCorrect(result.correct);
-      
-      // Convert string indices to numbers if needed
-      const letterStatuses: Record<number, LETTER_STATUS> = {};
-      Object.entries(result.letterStatuses).forEach(([pos, status]) => {
-        letterStatuses[parseInt(pos)] = status;
-      });
-      
-      return {
-        correct: result.correct,
-        letterStatuses
-      };
+      return result;
     } catch (err) {
       logger.error('Failed to submit guess', { 
         error: err instanceof Error ? { message: err.message } : err 

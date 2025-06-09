@@ -3,7 +3,7 @@ import { LETTER_STATUS } from '../components/types';
 
 export interface GuessResult {
   correct: boolean;
-  letterStatuses: Record<number, LETTER_STATUS>;
+  letterStatuses: Record<string, LETTER_STATUS>;
 }
 
 export interface InitResult {
@@ -51,7 +51,7 @@ class LexiGuessService {
   }
 
   async submitGuess(config: LexiGuessConfig, guess: string, gameId: string): Promise<GuessResult> {
-    const response = await this.fetchWithConfig<{ correct: boolean; letterStatuses: Record<string, LETTER_STATUS> }>(
+    return this.fetchWithConfig<GuessResult>(
       '/api/lexi-guess',
       config,
       {
@@ -59,17 +59,6 @@ class LexiGuessService {
         body: JSON.stringify({ guess, gameId }),
       }
     );
-
-    // Convert string indices to numbers
-    const letterStatuses: Record<number, LETTER_STATUS> = {};
-    Object.entries(response.letterStatuses).forEach(([pos, status]) => {
-      letterStatuses[parseInt(pos)] = status;
-    });
-
-    return {
-      correct: response.correct,
-      letterStatuses
-    };
   }
 }
 

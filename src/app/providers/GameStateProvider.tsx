@@ -12,7 +12,7 @@ type GameState = {
     current: string;
   };
   keyboardState: Record<string, LETTER_STATUS>;
-  wordStates: Record<number, Record<number, LETTER_STATUS>>; // Index -> Position -> Status
+  wordStates: Record<number, Record<string, LETTER_STATUS>>; // Index -> Position -> Status
   isGameOver: boolean;
   hasWon: boolean;
 };
@@ -22,7 +22,7 @@ type GameStateContextType = {
   currentGuess: string;
   submittedGuesses: string[];
   keyboardStatuses: Record<string, LETTER_STATUS>;
-  wordStatuses: Record<number, Record<number, LETTER_STATUS>>;
+  wordStatuses: Record<number, Record<string, LETTER_STATUS>>;
   hasWon: boolean;
   isGameOver: boolean;
   isLoading: boolean;
@@ -41,7 +41,7 @@ type GameStateProviderProps = {
 };
 
 export function GameStateProvider({ children }: GameStateProviderProps) {
-  const { config, loading: isConfigLoading } = useConfigContext();
+  const { config } = useConfigContext();
   const { 
     loading: isAnswerLoading,
     error,
@@ -134,7 +134,7 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
 
   // Initialize game when config is ready
   useEffect(() => {
-    if (isConfigLoading || !config || initializationAttempted.current) {
+    if (!config || initializationAttempted.current) {
       return;
     }
 
@@ -144,7 +144,7 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
         error: error instanceof Error ? { message: error.message } : error 
       });
     });
-  }, [isConfigLoading, config, resetGame]);
+  }, [config, resetGame]);
 
   const value = {
     // Selectors
@@ -154,7 +154,7 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
     wordStatuses: gameState.wordStates,
     hasWon: gameState.hasWon,
     isGameOver: gameState.isGameOver,
-    isLoading: isConfigLoading || isAnswerLoading,
+    isLoading: isAnswerLoading,
     error,
     
     // Actions
@@ -163,7 +163,7 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
     resetGame,
   };
 
-  if (isConfigLoading || isAnswerLoading) {
+  if (isAnswerLoading) {
     return null; // or a loading spinner
   }
 

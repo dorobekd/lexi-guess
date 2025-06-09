@@ -37,7 +37,7 @@ export interface WordValidator {
 }
 
 export interface InitResult {
-  success: boolean;
+  gameId: string;
   source: WordSource;
 }
 
