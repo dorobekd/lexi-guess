@@ -1,4 +1,4 @@
-import { LexiGuessConfig } from '@/app/components/config';
+import { LexiGuessConfig, Locale } from '@/app/components/config';
 import { LETTER_STATUS } from '@/app/components/types';
 
 export type WordSource = 'openai' | 'fallback';
@@ -39,13 +39,6 @@ export interface WordValidator {
 export interface InitResult {
   success: boolean;
   source: WordSource;
-}
-
-export interface WordRepository {
-  getCache(cacheKey: string): WordCache | undefined;
-  setCache(cacheKey: string, cache: WordCache): void;
-  getDailyWord(config: LexiGuessConfig): Promise<string>;
-  getPracticeWord(config: LexiGuessConfig, cacheKey: string): Promise<string>;
 }
 
 export interface WordService {
