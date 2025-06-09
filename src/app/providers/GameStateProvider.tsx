@@ -1,17 +1,20 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from 'react';
 import { LETTER_STATUS } from '../components/types';
 import { useFetchAnswer } from '../hooks/useFetchAnswer';
 import { useConfigContext } from './ConfigProvider';
+import { logger } from '@/lib/clientLogger';
 
 type GameState = {
-  answer: string;
   guessState: {
     submitted: string[];
     current: string;
   };
   keyboardState: Record<string, LETTER_STATUS>;
+  wordStates: Record<number, Record<number, LETTER_STATUS>>; // Index -> Position -> Status
+  isGameOver: boolean;
+  hasWon: boolean;
 };
 
 type GameStateContextType = {
@@ -19,7 +22,7 @@ type GameStateContextType = {
   currentGuess: string;
   submittedGuesses: string[];
   keyboardStatuses: Record<string, LETTER_STATUS>;
-  answer: string;
+  wordStatuses: Record<number, Record<number, LETTER_STATUS>>;
   hasWon: boolean;
   isGameOver: boolean;
   isLoading: boolean;
@@ -31,15 +34,7 @@ type GameStateContextType = {
   resetGame: () => void;
 };
 
-const GameStateContext = createContext<GameStateContextType | null>(null);
-
-export function useGameStateContext() {
-  const context = useContext(GameStateContext);
-  if (!context) {
-    throw new Error('useGameStateContext must be used within a GameStateProvider');
-  }
-  return context;
-}
+const GameStateContext = createContext<GameStateContextType | undefined>(undefined);
 
 type GameStateProviderProps = {
   children: ReactNode;
@@ -48,40 +43,28 @@ type GameStateProviderProps = {
 export function GameStateProvider({ children }: GameStateProviderProps) {
   const { config, loading: isConfigLoading } = useConfigContext();
   const { 
-    answer: fetchedAnswer, 
-    loading, 
+    loading: isAnswerLoading,
     error,
-    refreshAnswer 
+    initializeGame,
+    submitGuess: validateGuess
   } = useFetchAnswer();
 
+  const initializationAttempted = useRef(false);
+
   const [gameState, setGameState] = useState<GameState>({
-    answer: fetchedAnswer || "     ", // Placeholder until answer is fetched
     guessState: {
       submitted: [],
       current: "",
     },
     keyboardState: {},
+    wordStates: {},
+    isGameOver: false,
+    hasWon: false
   });
 
-  // Update game state when answer is fetched
-  useEffect(() => {
-    if (fetchedAnswer) {
-      setGameState(prev => ({
-        ...prev,
-        answer: fetchedAnswer
-      }));
-    }
-  }, [fetchedAnswer]);
-
-  const getLetterStatus = useCallback((letter: string, index: number): LETTER_STATUS => {
-    if (gameState.answer.includes(letter)) {
-      if (gameState.answer[index] === letter) return LETTER_STATUS.IN_POSITION;
-      return LETTER_STATUS.OUT_OF_POSITION;
-    }
-    return LETTER_STATUS.NOT_IN_WORD;
-  }, [gameState.answer]);
-
   const setCurrentGuess = useCallback((guess: string) => {
+    if (gameState.isGameOver) return;
+    
     setGameState(prev => ({
       ...prev,
       guessState: {
@@ -89,56 +72,89 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
         current: guess
       }
     }));
-  }, []);
+  }, [gameState.isGameOver]);
 
-  const submitGuess = useCallback(() => {
-    setGameState(prev => {
-      const newKeyboardState = { ...prev.keyboardState };
-      prev.guessState.current.split('').forEach((letter, index) => {
-        const status = getLetterStatus(letter, index);
-        if (!newKeyboardState[letter] || 
-            (status === LETTER_STATUS.IN_POSITION) || 
-            (status === LETTER_STATUS.OUT_OF_POSITION && newKeyboardState[letter] === LETTER_STATUS.NOT_IN_WORD)) {
-          newKeyboardState[letter] = status;
-        }
-      });
+  const submitGuess = useCallback(async () => {
+    if (gameState.isGameOver || !gameState.guessState.current) return;
 
-      return {
-        ...prev,
-        guessState: {
-          submitted: [...prev.guessState.submitted, prev.guessState.current],
-          current: "",
-        },
-        keyboardState: newKeyboardState
-      };
+    const guess = gameState.guessState.current;
+    const result = await validateGuess(guess);
+    
+    // Update keyboard state with the received letter statuses
+    const newKeyboardState = { ...gameState.keyboardState };
+    const guessIndex = gameState.guessState.submitted.length;
+
+    // Store the position-based statuses for this guess
+    const newWordStates = { ...gameState.wordStates };
+    newWordStates[guessIndex] = result.letterStatuses;
+
+    // Update keyboard state based on the best status for each letter
+    Object.entries(result.letterStatuses).forEach(([position, status]) => {
+      const letter = guess[parseInt(position)];
+      // Only update if the new status is more favorable than the existing one
+      if (!newKeyboardState[letter] || 
+          (status === LETTER_STATUS.IN_POSITION) || 
+          (status === LETTER_STATUS.OUT_OF_POSITION && newKeyboardState[letter] === LETTER_STATUS.NOT_IN_WORD)) {
+        newKeyboardState[letter] = status;
+      }
     });
-  }, [getLetterStatus]);
 
-  const resetGame = useCallback(async () => {
-    await refreshAnswer();
     setGameState(prev => ({
       ...prev,
       guessState: {
-        submitted: [],
+        submitted: [...prev.guessState.submitted, guess],
         current: "",
       },
-      keyboardState: {},
+      keyboardState: newKeyboardState,
+      wordStates: newWordStates,
+      hasWon: result.correct,
+      isGameOver: result.correct || prev.guessState.submitted.length + 1 >= config.maxGuesses
     }));
-  }, [refreshAnswer]);
+  }, [gameState.isGameOver, gameState.guessState, gameState.keyboardState, gameState.wordStates, validateGuess, config.maxGuesses]);
 
-  const hasWon = gameState.guessState.submitted.length > 0 && 
-    gameState.guessState.submitted[gameState.guessState.submitted.length - 1] === gameState.answer;
-  const isGameOver = gameState.guessState.submitted.length >= config.maxGuesses || hasWon;
+  const resetGame = useCallback(async () => {
+    try {
+      await initializeGame();
+      setGameState({
+        guessState: {
+          submitted: [],
+          current: "",
+        },
+        keyboardState: {},
+        wordStates: {},
+        isGameOver: false,
+        hasWon: false
+      });
+    } catch (error) {
+      logger.error('Failed to reset game', { 
+        error: error instanceof Error ? { message: error.message } : error 
+      });
+    }
+  }, [initializeGame]);
+
+  // Initialize game when config is ready
+  useEffect(() => {
+    if (isConfigLoading || !config || initializationAttempted.current) {
+      return;
+    }
+
+    initializationAttempted.current = true;
+    resetGame().catch((error) => {
+      logger.error('Failed to initialize game', { 
+        error: error instanceof Error ? { message: error.message } : error 
+      });
+    });
+  }, [isConfigLoading, config, resetGame]);
 
   const value = {
     // Selectors
     currentGuess: gameState.guessState.current,
     submittedGuesses: gameState.guessState.submitted,
     keyboardStatuses: gameState.keyboardState,
-    answer: gameState.answer,
-    hasWon,
-    isGameOver,
-    isLoading: isConfigLoading || loading,
+    wordStatuses: gameState.wordStates,
+    hasWon: gameState.hasWon,
+    isGameOver: gameState.isGameOver,
+    isLoading: isConfigLoading || isAnswerLoading,
     error,
     
     // Actions
@@ -147,7 +163,7 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
     resetGame,
   };
 
-  if ((isConfigLoading || loading) && !gameState.answer) {
+  if (isConfigLoading || isAnswerLoading) {
     return null; // or a loading spinner
   }
 
@@ -156,4 +172,12 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
       {children}
     </GameStateContext.Provider>
   );
+}
+
+export function useGameStateContext() {
+  const context = useContext(GameStateContext);
+  if (context === undefined) {
+    throw new Error('useGameStateContext must be used within a GameStateProvider');
+  }
+  return context;
 } 

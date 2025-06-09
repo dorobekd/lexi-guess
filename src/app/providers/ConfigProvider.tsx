@@ -1,23 +1,15 @@
 "use client";
-import { createContext, useContext, ReactNode } from 'react';
+import { createContext, useContext, ReactNode, useState, useCallback } from 'react';
 import { DEFAULT_CONFIG, LexiGuessConfig } from '../components/config';
-import { useConfig } from '../hooks/useConfig';
-import LoadingPlaceholder from '../components/container/LoadingPlaceholder';
 
 type ConfigContextType = {
   config: LexiGuessConfig;
-  loading: boolean;
-  error: Error | null;
-  saveConfig: (newConfig: LexiGuessConfig) => Promise<void>;
-  refreshConfig: () => Promise<void>;
+  saveConfig: (newConfig: LexiGuessConfig) => void;
 };
 
 const ConfigContext = createContext<ConfigContextType>({
   config: DEFAULT_CONFIG,
-  loading: true,
-  error: null,
-  saveConfig: async () => {},
-  refreshConfig: async () => {},
+  saveConfig: () => {},
 });
 
 export function useConfigContext() {
@@ -33,18 +25,14 @@ type ConfigProviderProps = {
 };
 
 export function ConfigProvider({ children }: ConfigProviderProps) {
-  const configState = useConfig();
+  const [config, setConfig] = useState<LexiGuessConfig>(DEFAULT_CONFIG);
 
-  if (configState.loading || !configState.config) {
-    return <LoadingPlaceholder
-      wordRows={DEFAULT_CONFIG.maxGuesses}
-      keyboardRows={DEFAULT_CONFIG.keyboardRows.length}
-    />
-  }
-
+  const saveConfig = useCallback((newConfig: LexiGuessConfig) => {
+    setConfig(newConfig);
+  }, []);
 
   return (
-    <ConfigContext.Provider value={configState}>
+    <ConfigContext.Provider value={{ config, saveConfig }}>
       {children}
     </ConfigContext.Provider>
   );
