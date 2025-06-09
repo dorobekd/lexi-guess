@@ -1,7 +1,7 @@
-import OpenAI from 'openai';
+import { OpenAI } from 'openai';
 import { LexiGuessConfig } from '@/app/components/config';
+import logger from '@/app/lib/logger';
 import { WordGenerator, GeneratedWords } from '../types';
-import logger from '@/server/lib/logger';
 
 export class OpenAIWordGenerator implements WordGenerator {
   private openai: OpenAI;

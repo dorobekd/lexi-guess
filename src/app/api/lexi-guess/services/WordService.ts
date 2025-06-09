@@ -5,7 +5,7 @@ import { WordCache as WordCacheImpl } from './WordCache';
 import { WordValidator as WordValidatorImpl } from './WordValidator';
 import { OpenAIWordGenerator } from './OpenAIWordGenerator';
 import { FallbackWordService } from './FallbackWordService';
-import logger from '@/server/lib/logger';
+import logger from '@/app/lib/logger';
 
 export class WordService {
   private wordGenerator: WordGenerator;

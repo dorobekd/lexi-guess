@@ -2,7 +2,7 @@ import { LexiGuessConfig } from '@/app/components/config';
 import { WordGenerator, GeneratedWords } from '../types';
 import { OpenAIWordGenerator } from './OpenAIWordGenerator';
 import { FallbackWordService } from './FallbackWordService';
-import logger from '@/server/lib/logger';
+import logger from '../../../lib/logger';
 
 export class CompositeWordGenerator implements WordGenerator {
   constructor(
