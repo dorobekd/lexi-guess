@@ -5,11 +5,11 @@ import { guessRateLimiter, initRateLimiter } from '../services/RateLimiterServic
 import { z } from 'zod';
 
 const configSchema = z.object({
-  locale: z.enum(['EN', 'PL']),
+  locale: z.enum(['EN', 'PL'] as const),
   maxWordLength: z.number().min(4).max(8),
   keyboardRows: z.array(z.array(z.string())),
   maxGuesses: z.number().min(1),
-  gameMode: z.enum(['daily', 'practice'])
+  gameMode: z.enum(['daily', 'practice'] as const)
 });
 
 const guessSchema = z.object({
