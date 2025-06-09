@@ -11,60 +11,44 @@ export class WordValidator implements IWordValidator {
     logger.debug('📝 Normalized inputs', { upperGuess, upperAnswer });
     
     const positionStatuses: Record<string, LETTER_STATUS> = {};
-    const guessArray = upperGuess.split('');
-    const answerArray = upperAnswer.split('');
+    const unmatchedGuessIndices: number[] = [];
+    const unmatchedAnswerLetters = new Map<string, number>();
 
-    // Initialize all positions as NOT_IN_WORD
-    for (let i = 0; i < guessArray.length; i++) {
-      positionStatuses[i.toString()] = LETTER_STATUS.NOT_IN_WORD;
-    }
+    // Initialize all positions as NOT_IN_WORD and process exact matches in a single pass
+    for (let i = 0; i < upperGuess.length; i++) {
+      const guessLetter = upperGuess[i];
+      const answerLetter = upperAnswer[i];
 
-    // Count letters in answer
-    const answerLetterCount = new Map<string, number>();
-    for (const letter of answerArray) {
-      answerLetterCount.set(letter, (answerLetterCount.get(letter) || 0) + 1);
-    }
-    logger.debug('📊 Answer letter counts', { counts: Object.fromEntries(answerLetterCount) });
-
-    // First pass: Mark exact matches (IN_POSITION)
-    for (let i = 0; i < guessArray.length; i++) {
-      const guessLetter = guessArray[i];
-      if (guessLetter === answerArray[i]) {
-        positionStatuses[i.toString()] = LETTER_STATUS.IN_POSITION;
-        // Decrement the count for this letter
-        answerLetterCount.set(guessLetter, answerLetterCount.get(guessLetter)! - 1);
-        logger.debug('✅ Found exact match', { 
-          position: i, 
-          letter: guessLetter, 
-          remainingCount: answerLetterCount.get(guessLetter) 
-        });
+      // Count all letters in answer for unmatched positions
+      if (guessLetter !== answerLetter) {
+        unmatchedGuessIndices.push(i);
+        unmatchedAnswerLetters.set(
+          answerLetter, 
+          (unmatchedAnswerLetters.get(answerLetter) || 0) + 1
+        );
+        positionStatuses[i] = LETTER_STATUS.NOT_IN_WORD;
+      } else {
+        // Mark exact matches immediately
+        positionStatuses[i] = LETTER_STATUS.IN_POSITION;
+        logger.debug('✅ Found exact match', { position: i, letter: guessLetter });
       }
     }
 
-    // Second pass: Mark misplaced letters (OUT_OF_POSITION)
-    // For duplicate letters in guess, we need to process from left to right
-    for (let i = 0; i < guessArray.length; i++) {
-      const pos = i.toString();
-      // Skip positions that are already marked as exact matches
-      if (positionStatuses[pos] === LETTER_STATUS.IN_POSITION) {
-        continue;
-      }
+    // Process unmatched positions for partial matches
+    for (const i of unmatchedGuessIndices) {
+      const guessLetter = upperGuess[i];
+      const remainingCount = unmatchedAnswerLetters.get(guessLetter) || 0;
 
-      const guessLetter = guessArray[i];
-      const remainingCount = answerLetterCount.get(guessLetter) || 0;
-
-      // If we still have instances of this letter available in the answer
       if (remainingCount > 0) {
-        positionStatuses[pos] = LETTER_STATUS.OUT_OF_POSITION;
-        answerLetterCount.set(guessLetter, remainingCount - 1);
+        positionStatuses[i] = LETTER_STATUS.OUT_OF_POSITION;
+        unmatchedAnswerLetters.set(guessLetter, remainingCount - 1);
         logger.debug('↔️ Found misplaced letter', { 
           position: i, 
           letter: guessLetter, 
-          remainingCount: answerLetterCount.get(guessLetter) 
+          remainingCount: remainingCount - 1 
         });
       } else {
-        // No more instances of this letter available
-        logger.debug('❌ No more instances available', { 
+        logger.debug('❌ Letter not in remaining positions', { 
           position: i, 
           letter: guessLetter 
         });
@@ -80,7 +64,6 @@ export class WordValidator implements IWordValidator {
       guess: upperGuess,
       answer: upperAnswer,
       positionStatuses,
-      availableLetters: Object.fromEntries(answerLetterCount),
       result
     });
 
