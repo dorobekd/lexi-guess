@@ -12,6 +12,11 @@ const configSchema = z.object({
   gameMode: z.enum(['daily', 'practice'])
 });
 
+const guessSchema = z.object({
+  guess: z.string(),
+  gameId: z.string(),
+});
+
 function validateConfig(config: unknown): config is LexiGuessConfig {
   try {
     console.log('Validating config:', config);
@@ -107,6 +112,47 @@ export async function handlePost(request: NextRequest) {
     console.error('❌ Error in POST:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to initialize game' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function handlePut(request: NextRequest) {
+  try {
+    const body = await request.json();
+    console.log('Received guess request:', body);
+    
+    const { guess, gameId } = guessSchema.parse(body);
+    console.log('Parsed guess data:', { guess, gameId });
+
+    // Rate limit check for guesses
+    const { success, headers } = await guessRateLimiter.checkLimit(request, 'guess', 10);
+    if (!success) {
+      const response = NextResponse.json(
+        { error: 'Too many guess attempts. Please try again later.' },
+        { status: 429 }
+      );
+      return addRateLimitHeaders(response, headers);
+    }
+    console.log('Rate limit check passed');
+
+    console.log('Validating guess');
+    const result = await wordService.validateGuess(guess, gameId);
+    console.log('Validation result:', result);
+
+    const response = NextResponse.json(result);
+    return addRateLimitHeaders(response, headers);
+  } catch (error) {
+    console.error('❌ Error in PUT:', error);
+    
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ 
+        error: 'Invalid request data',
+        details: error.errors
+      }, { status: 400 });
+    }
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to validate guess' },
       { status: 500 }
     );
   }
