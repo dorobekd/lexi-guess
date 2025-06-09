@@ -1,11 +1,11 @@
 import { map } from "lodash-es";
 
 export enum LETTER_STATUS {
-  IN_POSITION,
-  OUT_OF_POSITION,
-  NOT_IN_WORD,
-  NOT_GUESSED,
-  GUESSED
+  IN_POSITION = 'IN_POSITION',
+  OUT_OF_POSITION = 'OUT_OF_POSITION',
+  NOT_IN_WORD = 'NOT_IN_WORD',
+  NOT_GUESSED = 'NOT_GUESSED',
+  GUESSED = 'GUESSED'
 }
 
 const initKeyboardLayout = [
