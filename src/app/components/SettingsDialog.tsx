@@ -11,7 +11,7 @@ import {
   MenuItem,
   Stack
 } from '@mui/material';
-import { LexiGuessConfig, DEFAULT_CONFIG } from './config';
+import { LexiGuessConfig, DEFAULT_CONFIG, GameMode } from './config';
 import { useState } from 'react';
 
 type SettingsDialogProps = {
@@ -38,6 +38,13 @@ export default function SettingsDialog({
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleGameModeChange = (value: string) => {
+    setConfig(prev => ({
+      ...prev,
+      gameMode: value as GameMode
+    }));
   };
 
   return (
@@ -70,14 +77,10 @@ export default function SettingsDialog({
             <Select
               value={config.gameMode}
               label="Game Mode"
-              onChange={(e) => setConfig(prev => ({
-                ...prev,
-                gameMode: e.target.value as 'daily' | 'practice' | 'custom'
-              }))}
+              onChange={(e) => handleGameModeChange(e.target.value)}
             >
               <MenuItem value="daily">Daily Challenge</MenuItem>
               <MenuItem value="practice">Practice</MenuItem>
-              <MenuItem value="custom">Custom</MenuItem>
             </Select>
           </FormControl>
         </Stack>
