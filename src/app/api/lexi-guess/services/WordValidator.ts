@@ -9,45 +9,39 @@ export class WordValidator implements IWordValidator {
     const upperGuess = guess.toUpperCase();
     const upperAnswer = answer.toUpperCase();
     logger.debug('📝 Normalized inputs', { upperGuess, upperAnswer });
-    
-    const positionStatuses: Record<string, LETTER_STATUS> = {};
-    const unmatchedGuessIndices: number[] = [];
-    const unmatchedAnswerLetters = new Map<string, number>();
 
-    // Initialize all positions as NOT_IN_WORD and process exact matches in a single pass
-    for (let i = 0; i < upperGuess.length; i++) {
+    const length = upperGuess.length;
+    const positionStatuses: Record<string, LETTER_STATUS> = {};
+    
+    // Pre-count all letters in the answer
+    const letterCounts: Record<string, number> = {};
+    for (let i = 0; i < length; i++) {
+      const letter = upperAnswer[i];
+      letterCounts[letter] = (letterCounts[letter] || 0) + 1;
+    }
+
+    // Single pass: Check exact matches first, then misplaced letters
+    for (let i = 0; i < length; i++) {
       const guessLetter = upperGuess[i];
       const answerLetter = upperAnswer[i];
 
-      // Count all letters in answer for unmatched positions
-      if (guessLetter !== answerLetter) {
-        unmatchedGuessIndices.push(i);
-        unmatchedAnswerLetters.set(
-          answerLetter, 
-          (unmatchedAnswerLetters.get(answerLetter) || 0) + 1
-        );
-        positionStatuses[i] = LETTER_STATUS.NOT_IN_WORD;
-      } else {
-        // Mark exact matches immediately
+      if (guessLetter === answerLetter) {
+        // Exact match found
         positionStatuses[i] = LETTER_STATUS.IN_POSITION;
+        letterCounts[guessLetter]--; // Decrease available count
         logger.debug('✅ Found exact match', { position: i, letter: guessLetter });
-      }
-    }
-
-    // Process unmatched positions for partial matches
-    for (const i of unmatchedGuessIndices) {
-      const guessLetter = upperGuess[i];
-      const remainingCount = unmatchedAnswerLetters.get(guessLetter) || 0;
-
-      if (remainingCount > 0) {
+      } else if (letterCounts[guessLetter] > 0) {
+        // Letter exists in answer but in wrong position
         positionStatuses[i] = LETTER_STATUS.OUT_OF_POSITION;
-        unmatchedAnswerLetters.set(guessLetter, remainingCount - 1);
+        letterCounts[guessLetter]--; // Decrease available count
         logger.debug('↔️ Found misplaced letter', { 
           position: i, 
           letter: guessLetter, 
-          remainingCount: remainingCount - 1 
+          remainingCount: letterCounts[guessLetter] 
         });
       } else {
+        // Letter not in word or no more instances available
+        positionStatuses[i] = LETTER_STATUS.NOT_IN_WORD;
         logger.debug('❌ Letter not in remaining positions', { 
           position: i, 
           letter: guessLetter 
