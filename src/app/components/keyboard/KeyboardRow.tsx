@@ -35,10 +35,15 @@ export default function KeyboardRow({
         const isDisabled = keyStatus === LETTER_STATUS.NOT_IN_WORD || currentGuess.length >= maxLength;
         const isInCurrentGuess = currentGuess.includes(value);
         
-        // Only show NOT_IN_WORD status with error color, use text styles for others
-        const displayStatus = keyStatus === LETTER_STATUS.NOT_IN_WORD 
-          ? LETTER_STATUS.NOT_IN_WORD 
-          : (isInCurrentGuess ? LETTER_STATUS.GUESSED : LETTER_STATUS.NOT_GUESSED);
+        // Keep the actual status for correct/wrong position/not in word,
+        // otherwise show as guessed/not guessed
+        const displayStatus = [
+          LETTER_STATUS.IN_POSITION,
+          LETTER_STATUS.OUT_OF_POSITION,
+          LETTER_STATUS.NOT_IN_WORD
+        ].includes(keyStatus)
+          ? keyStatus
+          : isInCurrentGuess ? LETTER_STATUS.GUESSED : LETTER_STATUS.NOT_GUESSED;
 
         return (
           <Box

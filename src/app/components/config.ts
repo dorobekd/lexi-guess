@@ -1,13 +1,13 @@
-export type GameMode = 'daily' | 'practice' | 'custom';
 export type Locale = 'EN' | 'PL';
+export type GameMode = 'daily' | 'practice';
 
-export type LexiGuessConfig = {
+export interface LexiGuessConfig {
   maxWordLength: number;
   maxGuesses: number;
   gameMode: GameMode;
-  keyboardRows: string[][];
   locale: Locale;
-};
+  keyboardRows: string[][];
+}
 
 export const DEFAULT_CONFIG: LexiGuessConfig = {
   maxWordLength: 5,
