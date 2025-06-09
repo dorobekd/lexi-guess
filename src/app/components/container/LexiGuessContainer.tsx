@@ -27,9 +27,8 @@ function LexiGuessContent() {
   } = useGameStateContext();
 
   const handleSaveConfig = async (newConfig: LexiGuessConfig) => {
-    saveConfig(newConfig);
-    resetGame(); // Reset the game with new config
-    return Promise.resolve();
+    await saveConfig(newConfig);
+    await resetGame(); // Reset the game with new config
   };
 
   // Create array of all possible word slots

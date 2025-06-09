@@ -4,12 +4,12 @@ import { DEFAULT_CONFIG, LexiGuessConfig } from '../components/config';
 
 type ConfigContextType = {
   config: LexiGuessConfig;
-  saveConfig: (newConfig: LexiGuessConfig) => void;
+  saveConfig: (newConfig: LexiGuessConfig) => Promise<void>;
 };
 
 const ConfigContext = createContext<ConfigContextType>({
   config: DEFAULT_CONFIG,
-  saveConfig: () => {},
+  saveConfig: async () => {},
 });
 
 export function useConfigContext() {
@@ -27,7 +27,7 @@ type ConfigProviderProps = {
 export function ConfigProvider({ children }: ConfigProviderProps) {
   const [config, setConfig] = useState<LexiGuessConfig>(DEFAULT_CONFIG);
 
-  const saveConfig = useCallback((newConfig: LexiGuessConfig) => {
+  const saveConfig = useCallback(async (newConfig: LexiGuessConfig) => {
     setConfig(newConfig);
   }, []);
 
