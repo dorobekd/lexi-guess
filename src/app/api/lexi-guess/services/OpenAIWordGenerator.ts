@@ -1,6 +1,6 @@
 import { OpenAI } from 'openai';
-import { LexiGuessConfig } from '@/app/components/config';
-import logger from '@/app/lib/logger';
+import { LexiGuessConfig } from '@/features/game/config';
+import logger from '@/shared/lib/logger';
 import { WordGenerator, GeneratedWords } from '../types';
 
 export class OpenAIWordGenerator implements WordGenerator {

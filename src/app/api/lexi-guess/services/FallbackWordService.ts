@@ -1,4 +1,4 @@
-import { LexiGuessConfig } from '@/app/components/config';
+import { LexiGuessConfig } from '@/features/game/config';
 import { WordGenerator, GeneratedWords } from '../types';
 import { shuffle } from 'lodash';
 

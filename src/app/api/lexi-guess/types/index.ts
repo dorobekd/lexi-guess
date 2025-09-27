@@ -1,5 +1,5 @@
-import { LexiGuessConfig, Locale } from '@/app/components/config';
-import { LETTER_STATUS } from '@/app/components/types';
+import { LexiGuessConfig, Locale } from '@/features/game/config';
+import { LETTER_STATUS } from '@/features/game/types';
 
 export type WordSource = 'openai' | 'fallback';
 

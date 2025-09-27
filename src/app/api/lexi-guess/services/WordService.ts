@@ -1,11 +1,11 @@
-import { LexiGuessConfig } from '@/app/components/config';
+import { LexiGuessConfig } from '@/features/game/config';
 import { WordGenerator, WordCache, WordValidator, GuessResult } from '../types';
 import { CompositeWordGenerator } from './CompositeWordGenerator';
 import { WordCache as WordCacheImpl } from './WordCache';
 import { WordValidator as WordValidatorImpl } from './WordValidator';
 import { OpenAIWordGenerator } from './OpenAIWordGenerator';
 import { FallbackWordService } from './FallbackWordService';
-import logger from '@/app/lib/logger';
+import logger from '@/shared/lib/logger';
 
 export class WordService {
   private wordGenerator: WordGenerator;
