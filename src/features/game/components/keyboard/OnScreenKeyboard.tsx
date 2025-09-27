@@ -1,8 +1,8 @@
 "use client";
 
 import { Box } from "@mui/material";
-import { LETTER_STATUS } from '../types';
-import Letter from '../word/Letter';
+import { LETTER_STATUS } from '@/features/game/types';
+import Letter from '@/features/game/components/word/Letter';
 import KeyboardControls from './KeyboardControls';
 import { useKeyboardInput } from './useKeyboardInput';
 
@@ -25,8 +25,6 @@ export default function OnScreenKeyboard({
   disabled = false,
   rows
 }: OnScreenKeyboardProps) {
-
-  useKeyboardInput();
   
 
   const handleKeyClick = (key: string) => {

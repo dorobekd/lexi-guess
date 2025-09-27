@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import AnimatedButton from '../common/AnimatedButton';
+import AnimatedButton from '@/features/game/components/common/AnimatedButton';
 import AnimatedModal from './AnimatedModal';
 import AnimatedTitle from './AnimatedTitle';
 

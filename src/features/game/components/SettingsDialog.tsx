@@ -11,7 +11,7 @@ import {
   MenuItem,
   Stack
 } from '@mui/material';
-import { LexiGuessConfig, DEFAULT_CONFIG, GameMode } from './config';
+import { DEFAULT_CONFIG, LexiGuessConfig, GameMode } from '@/features/game/config';
 import { useState } from 'react';
 
 type SettingsDialogProps = {

@@ -1,6 +1,6 @@
 "use client";
 import { createContext, useContext, ReactNode, useState, useCallback } from 'react';
-import { DEFAULT_CONFIG, LexiGuessConfig } from '../components/config';
+import { DEFAULT_CONFIG, LexiGuessConfig } from '@/features/game/config';
 
 type ConfigContextType = {
   config: LexiGuessConfig;

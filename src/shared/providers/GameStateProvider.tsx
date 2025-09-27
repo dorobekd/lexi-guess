@@ -1,10 +1,10 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from 'react';
-import { LETTER_STATUS } from '../components/types';
-import { useFetchAnswer } from '../hooks/useFetchAnswer';
+import { LETTER_STATUS } from '@/features/game/types';
+import { useFetchAnswer } from '@/features/game/hooks/useFetchAnswer';
 import { useConfigContext } from './ConfigProvider';
-import { logger } from '@/lib/clientLogger';
+import { logger } from '@/shared/lib/clientLogger';
 
 type GameState = {
   guessState: {
@@ -163,13 +163,16 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
     resetGame,
   };
 
-  if (isAnswerLoading) {
-    return null; // or a loading spinner
-  }
 
   return (
     <GameStateContext.Provider value={value}>
-      {children}
+      {isAnswerLoading ? (
+        <div>Loading game...</div>
+      ) : error ? (
+        <div>Error loading game: {error.message}</div>
+      ) : (
+        children
+      )}
     </GameStateContext.Provider>
   );
 }

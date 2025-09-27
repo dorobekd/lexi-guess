@@ -1,5 +1,5 @@
 import { Typography } from "@mui/material";
-import { LETTER_STATUS } from "../types";
+import { LETTER_STATUS } from '@/features/game/types';
 import { toUpper } from "lodash-es";
 import { motion } from "framer-motion";
 
@@ -34,22 +34,23 @@ const Letter = ({ letter, position, index = 0, sx }: LetterProps) => {
   
   return (
     <MotionTypography
-      initial={{ scale: 0.9 }}
+      initial={{ scale: 0.9, opacity: 0 }}
       animate={{ 
-        scale: position === LETTER_STATUS.NOT_GUESSED ? 0.9 : 1,
+        scale: 1,
+        opacity: 1,
         transition: {
-          delay: index * 0.1,
-          duration: 0.3,
+          delay: index * 0.05,
+          duration: 0.2,
           ease: "easeOut"
         }
       }}
       whileHover={{ 
-        scale: position === LETTER_STATUS.NOT_GUESSED ? 0.9 : 1.05,
-        transition: { duration: 0.2 }
+        scale: 1.05,
+        transition: { duration: 0.15 }
       }}
       sx={{
-        width: 40,
-        height: 40,
+        width: { xs: 32, sm: 40 },
+        height: { xs: 32, sm: 40 },
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -58,7 +59,7 @@ const Letter = ({ letter, position, index = 0, sx }: LetterProps) => {
         color: STATUS_COLORS[colorKey],
         borderRadius: 1,
         fontWeight: 'bold',
-        fontSize: '1.25rem',
+        fontSize: { xs: '1rem', sm: '1.25rem' },
         bgcolor: isEmpty ? 'action.hover' : 'transparent',
         ...sx,
       }}

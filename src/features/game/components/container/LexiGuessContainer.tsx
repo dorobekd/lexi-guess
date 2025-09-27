@@ -1,15 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import OnScreenKeyboard from "../keyboard/OnScreenKeyboard";
-import Word from "../word/Word";
+import { useState, useCallback, useEffect } from "react";
+import OnScreenKeyboard from '@/features/game/components/keyboard/OnScreenKeyboard';
+import Word from '@/features/game/components/word/Word';
 import { Box } from "@mui/material";
-import { LexiGuessConfig } from "../config";
+import { LexiGuessConfig } from '@/features/game/config';
 import SettingsDialog from "../SettingsDialog";
-import GameOverModal from "../modals/GameOverModal";
-import VictoryModal from "../modals/VictoryModal";
-import { useConfigContext } from "../../providers/ConfigProvider";
-import { GameStateProvider, useGameStateContext } from "../../providers/GameStateProvider";
+import GameOverModal from '@/features/game/components/modals/GameOverModal';
+import VictoryModal from '@/features/game/components/modals/VictoryModal';
+import { useConfigContext } from '@/shared/providers/ConfigProvider';
+import { GameStateProvider, useGameStateContext } from '@/shared/providers/GameStateProvider';
+import { useKeyboardInput } from '@/features/game/components/keyboard/useKeyboardInput';
 
 function LexiGuessContent() {
   const { config, saveConfig } = useConfigContext();
@@ -25,6 +26,15 @@ function LexiGuessContent() {
     submitGuess,
     resetGame
   } = useGameStateContext();
+  
+
+  // Set up keyboard input
+  useKeyboardInput({
+    currentGuess,
+    isGameOver,
+    setCurrentGuess,
+    submitGuess
+  });
 
   const handleSaveConfig = async (newConfig: LexiGuessConfig) => {
     await saveConfig(newConfig);
@@ -35,8 +45,26 @@ function LexiGuessContent() {
   const allWordSlots = Array.from({ length: config.maxGuesses });
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center', position: 'relative', width: '100%' }}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+    <Box sx={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      gap: { xs: 1.5, sm: 2 }, 
+      alignItems: 'center', 
+      justifyContent: 'center',
+      position: 'relative', 
+      width: '100%',
+      maxWidth: { xs: '100%', sm: '500px' },
+      mx: 'auto',
+      px: { xs: 1, sm: 2 },
+      minHeight: 'fit-content'
+    }}>
+      <Box sx={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        gap: { xs: 0.5, sm: 1 },
+        width: '100%',
+        alignItems: 'center'
+      }}>
         {allWordSlots.map((_, index) => {
           const isSubmitted = index < submittedGuesses.length;
           const isActive = index === submittedGuesses.length;

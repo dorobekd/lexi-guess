@@ -1,9 +1,9 @@
 import { useCallback, useRef, useState } from 'react';
 import { isEmpty } from 'lodash-es';
-import { useConfigContext } from '../providers/ConfigProvider';
-import { LETTER_STATUS } from '../components/types';
+import { useConfigContext } from '@/shared/providers/ConfigProvider';
+import { LETTER_STATUS } from '@/features/game/types';
 import { lexiGuessService } from '../services/LexiGuessService';
-import { logger } from '@/lib/clientLogger';
+import { logger } from '@/shared/lib/clientLogger';
 
 interface UseFetchAnswerReturn {
   isCorrect: boolean | null;

@@ -18,6 +18,11 @@ const getThemePalette = (mode: PaletteMode) => ({
         }
     ),
   },
+  typography: {
+    h1: {
+      fontSize: '2rem',
+    },
+  },
 });
 
 export const lightTheme = createTheme(getThemePalette('light'));

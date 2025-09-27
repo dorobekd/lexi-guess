@@ -6,8 +6,8 @@ import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import { useState } from "react";
 import SettingsDialog from "../SettingsDialog";
-import { useConfigContext } from "../../providers/ConfigProvider";
-import { useTheme } from "../../providers/ThemeProvider";
+import { useConfigContext } from '@/shared/providers/ConfigProvider';
+import { useTheme } from '@/shared/providers/ThemeProvider';
 
 export default function Banner() {
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -37,7 +37,7 @@ export default function Banner() {
             sx={{
               ml: 2,
               fontWeight: 'bold',
-              fontSize: '2.5rem',
+              //fontSize: '2.5rem',
             }}
           >
             Lexi-Guess

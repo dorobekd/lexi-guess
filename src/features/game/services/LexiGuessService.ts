@@ -1,5 +1,5 @@
-import { LexiGuessConfig } from '../components/config';
-import { LETTER_STATUS } from '../components/types';
+import { LexiGuessConfig } from '@/features/game/config';
+import { LETTER_STATUS } from '@/features/game/types';
 
 export interface GuessResult {
   correct: boolean;

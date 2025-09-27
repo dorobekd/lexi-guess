@@ -1,16 +1,21 @@
 "use client";
 
-import { useGameStateContext } from "@/app/providers/GameStateProvider";
-import { useConfigContext } from "@/app/providers/ConfigProvider";
+import { useConfigContext } from '@/shared/providers/ConfigProvider';
 import { useEffect } from "react";
 
-export function useKeyboardInput() {
-    const { 
-        currentGuess,
-        isGameOver,
-        setCurrentGuess,
-        submitGuess,
-      } = useGameStateContext();
+type UseKeyboardInputProps = {
+  currentGuess: string;
+  isGameOver: boolean;
+  setCurrentGuess: (guess: string) => void;
+  submitGuess: () => void;
+};
+
+export function useKeyboardInput({ 
+  currentGuess, 
+  isGameOver, 
+  setCurrentGuess, 
+  submitGuess 
+}: UseKeyboardInputProps) {
     const { config } = useConfigContext();
 
     useEffect(() => {

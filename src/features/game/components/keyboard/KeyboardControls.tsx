@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import AnimatedButton from "../common/AnimatedButton";
+import AnimatedButton from '@/features/game/components/common/AnimatedButton';
 
 type KeyboardControlsProps = {
   onBackspace: () => void;

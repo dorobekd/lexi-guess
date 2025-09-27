@@ -1,6 +1,6 @@
 import { GuessResult, WordValidator as IWordValidator } from '../types';
-import { LETTER_STATUS } from '@/app/components/types';
-import logger from '@/app/lib/logger';
+import { LETTER_STATUS } from '@/features/game/types';
+import logger from '@/shared/lib/logger';
 
 export class WordValidator implements IWordValidator {
   validateGuess(guess: string, answer: string): GuessResult {
