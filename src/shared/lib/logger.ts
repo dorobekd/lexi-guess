@@ -17,18 +17,5 @@ const logger = winston.createLogger({
   ]
 });
 
-// Add request context middleware
-export async function withRequestLogger<T>(
-  requestId: string,
-  fn: () => Promise<T>
-): Promise<T> {
-  const originalMeta = { ...logger.defaultMeta };
-  logger.defaultMeta = { ...logger.defaultMeta, requestId };
-  try {
-    return await fn();
-  } finally {
-    logger.defaultMeta = originalMeta;
-  }
-}
 
 export default logger; 
