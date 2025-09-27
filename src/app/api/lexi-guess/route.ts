@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from 'next/server';
-import { LexiGuessConfig } from '@/app/components/config';
+import { LexiGuessConfig } from '@/features/game/config';
 import { wordService } from './services/WordService';
 import { guessRateLimiter, initRateLimiter } from './services/RateLimiterService';
 import { z } from 'zod';
