@@ -1,4 +1,4 @@
-import { DEFAULT_CONFIG, LexiGuessConfig } from '@/features/game/config';
+import { LexiGuessConfig } from '@/features/game/config';
 import { WordGenerator, GeneratedWords } from '../types';
 import { OpenAIWordGenerator } from './OpenAIWordGenerator';
 import { FallbackWordService } from './FallbackWordService';

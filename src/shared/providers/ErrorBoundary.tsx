@@ -71,7 +71,7 @@ export class ErrorBoundary extends Component<Props, State> {
               Oops! Something went wrong
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              We encountered an unexpected error. This has been logged and we'll look into it.
+              We encountered an unexpected error. This has been logged and we&apos;ll look into it.
             </Typography>
             {process.env.NODE_ENV === 'development' && this.state.error && (
               <Box

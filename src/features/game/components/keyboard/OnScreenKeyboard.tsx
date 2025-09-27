@@ -4,7 +4,6 @@ import { Box } from "@mui/material";
 import { LETTER_STATUS } from '@/features/game/types';
 import Letter from '@/features/game/components/word/Letter';
 import KeyboardControls from './KeyboardControls';
-import { useKeyboardInput } from './useKeyboardInput';
 
 export type OnScreenKeyboardProps = {
   onChange: (value: string) => void;

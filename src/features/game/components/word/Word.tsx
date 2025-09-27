@@ -14,18 +14,18 @@ type WordProps = {
   index?: number;
 };
 
-const Word = memo(({ guess, isSubmitted = false, maxLength, isActive = false, index = 0 }: WordProps) => {
+const Word = memo(function Word({ guess, isSubmitted = false, maxLength, isActive = false, index = 0 }: WordProps) {
   const { wordStatuses } = useGameStateContext();
 
-  const getPosition = (letter: string, position: number): LETTER_STATUS => {
-    if (!isSubmitted) {
-      return isActive ? LETTER_STATUS.GUESSED : LETTER_STATUS.NOT_GUESSED;
-    }
-    
-    return wordStatuses[index]?.[position] || LETTER_STATUS.NOT_IN_WORD;
-  };
-
   const letters = useMemo(() => {
+    const getPosition = (letter: string, position: number): LETTER_STATUS => {
+      if (!isSubmitted) {
+        return isActive ? LETTER_STATUS.GUESSED : LETTER_STATUS.NOT_GUESSED;
+      }
+      
+      return wordStatuses[index]?.[position] || LETTER_STATUS.NOT_IN_WORD;
+    };
+
     const guessedLetters = map(guess.split(""), (letter, position) => ({
       letter,
       position: getPosition(letter, position),

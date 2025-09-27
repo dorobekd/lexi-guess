@@ -212,8 +212,7 @@ export function GameStateProvider({ children }: GameStateProviderProps) {
     submitGuess,
     resetGame,
   }), [
-    gameState.guessState.current,
-    gameState.guessState.submitted,
+    gameState.guessState,
     gameState.keyboardState,
     gameState.wordStates,
     gameState.hasWon,

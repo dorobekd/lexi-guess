@@ -79,7 +79,7 @@ const getThemePalette = (mode: PaletteMode) => ({
     button: {
       fontSize: 'clamp(0.875rem, 2vw, 1rem)',
       fontWeight: 500,
-      textTransform: 'none',
+      textTransform: 'none' as const,
     },
   },
   shape: {
