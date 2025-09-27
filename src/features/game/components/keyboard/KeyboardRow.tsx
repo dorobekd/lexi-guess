@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import { LETTER_STATUS } from "../types";
+import { LETTER_STATUS } from "../../types";
 import Letter from "../word/Letter";
 
 type KeyboardRowProps = {

@@ -1,4 +1,4 @@
-import { LexiGuessConfig } from '@/app/components/config';
+import { LexiGuessConfig } from '@/features/game/config';
 import { WordCache as IWordCache, WordSource } from '../types';
 import { get } from 'lodash';
 
