@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState } from "react";
 import OnScreenKeyboard from '@/features/game/components/keyboard/OnScreenKeyboard';
 import Word from '@/features/game/components/word/Word';
 import { Box } from "@mui/material";
@@ -9,10 +9,10 @@ import SettingsDialog from "../SettingsDialog";
 import GameOverModal from '@/features/game/components/modals/GameOverModal';
 import VictoryModal from '@/features/game/components/modals/VictoryModal';
 import { useConfigContext } from '@/shared/providers/ConfigProvider';
-import { GameStateProvider, useGameStateContext } from '@/shared/providers/GameStateProvider';
+import { useGameStateContext } from '@/shared/providers/GameStateProvider';
 import { useKeyboardInput } from '@/features/game/components/keyboard/useKeyboardInput';
 
-function LexiGuessContent() {
+export default function LexiGuessContainer() {
   const { config, saveConfig } = useConfigContext();
   const [settingsOpen, setSettingsOpen] = useState(false);
   
@@ -116,13 +116,5 @@ function LexiGuessContent() {
         />
       )}
     </Box>
-  );
-}
-
-export default function LexiGuessContainer() {
-  return (
-    <GameStateProvider>
-      <LexiGuessContent />
-    </GameStateProvider>
   );
 }
